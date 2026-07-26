@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { WP1_DETAIL, SITE, BIBTEX, METRICS_JSON } from "@/lib/data";
+import { WP1_DETAIL, WP1_BADGE, SITE, BIBTEX, METRICS_JSON } from "@/lib/data";
 import { CopyButton } from "@/components/CopyButton";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
@@ -14,6 +14,15 @@ export default function WP1DetailPage() {
       >
         <ArrowLeft size={14} /> All papers
       </Link>
+
+      <div className="inline-flex items-center gap-2 mb-3">
+        <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-green-600 dark:text-green-400 bg-green-600/10">
+          {WP1_BADGE.label}
+        </span>
+      </div>
+      <p className="text-[12px] text-muted mb-6">
+        {WP1_BADGE.note}
+      </p>
 
       <div className="flex items-center gap-3 mb-4 text-[12px] font-mono text-muted">
         <span>WP1</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { HOME, SITE } from "@/lib/data";
+import { HOME, ROADMAP, SITE } from "@/lib/data";
 import { CopyButton } from "@/components/CopyButton";
 import { ArrowUpRight } from "lucide-react";
 
@@ -42,6 +42,35 @@ export default function HomePage() {
           <CopyButton text={SITE.doi} label="copy" />
         </span>
       </div>
+
+      <hr className="my-8 border-theme" />
+
+      <section>
+        <h2 className="text-[12px] font-mono tracking-widest uppercase mb-4 text-muted">
+          Roadmap
+        </h2>
+        <div className="space-y-0">
+          {ROADMAP.map((item, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between py-3 border-t border-theme"
+            >
+              <span className="text-[15px]">{item.domain}</span>
+              <span
+                className={`text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded ${
+                  item.status === "live"
+                    ? "text-green-600 dark:text-green-400 bg-green-600/10"
+                    : item.status === "next"
+                      ? "text-amber-600 dark:text-amber-400 bg-amber-600/10"
+                      : "text-muted bg-[color-mix(in_srgb,var(--fg)_6%,transparent)]"
+                }`}
+              >
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

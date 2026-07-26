@@ -46,11 +46,24 @@ export const METRICS_JSON = {
 } as const;
 
 export const HOME = {
-  subtitle: "Leakage-aware, skin-tone stratified evaluation of dermatology AI.",
-  intro: "Dermatology AI models degrade on dark skin. Most evaluations hide this by conflating algorithmic bias with dataset leakage. We audit openly: every image SHA256-hashed, every split published, every metric reported with per-skin-tone breakdowns.",
+  subtitle: "Leakage-aware, stratified evaluation of medical imaging AI. Starting with dermatology.",
+  intro: "Medical imaging AI models degrade across subgroups. Most evaluations hide this by conflating algorithmic bias with dataset leakage. We audit openly: every image SHA256-hashed, every split published [60/20/20 seed 42], every metric reported with subgroup breakdowns. Starting with dermatology [skin-tone], expanding to radiology, ophthalmology, pathology.",
   finding: "Finetuning a ResNet-50 on dermatology data boosts overall AUC from 0.611 to 0.733, but the dark-light fairness gap widens from -7.19% to -21.87%. Photometric augmentation (brightness/contrast) fails to close it (p=0.524). Controlled synthetic augmentation at 2x restores AUC to 0.774 and narrows the gap to -6.56%.",
   paperLink: "/papers/fairderm-audit",
   paperTitle: "FairDerm-Audit: Leakage-Aware Evaluation of Synthetic Augmentation for Skin-Tone Fairness",
+} as const;
+
+export const ROADMAP = [
+  { domain: "Dermatology", status: "live" as const, label: "First Audit \u2014 LIVE" },
+  { domain: "Radiology", status: "next" as const, label: "Next" },
+  { domain: "Ophthalmology", status: "planned" as const, label: "Planned" },
+  { domain: "Pathology", status: "planned" as const, label: "Planned" },
+  { domain: "Any medical imaging where fairness matters", status: "planned" as const, label: "Planned" },
+] as const;
+
+export const WP1_BADGE = {
+  label: "First Audit: Dermatology",
+  note: "Methodology generalizes to radiology, ophthalmology, pathology",
 } as const;
 
 export const PAPERS = {
