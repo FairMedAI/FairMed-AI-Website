@@ -102,6 +102,10 @@ export default function AboutPage() {
             <GithubIcon size={14} /> {ABOUT.contact.github} <ArrowUpRight size={12} />
           </a>
           <br />
+          <a href={SITE.linkedinUrl} target="_blank" rel="noopener noreferrer" className="link-accent inline-flex items-center gap-2 hover:underline">
+            LinkedIn: FairMed AI <ArrowUpRight size={12} />
+          </a>
+          <br />
           <a href={SITE.zenodoCommunityUrl} target="_blank" rel="noopener noreferrer" className="link-accent inline-flex items-center gap-2 hover:underline">
             Zenodo: {ABOUT.contact.zenodo} <ArrowUpRight size={12} />
           </a>

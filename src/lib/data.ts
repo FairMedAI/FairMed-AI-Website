@@ -6,6 +6,7 @@ export const SITE = {
   doiUrl: "https://doi.org/10.5281/zenodo.21543770",
   zenodoUrl: "https://zenodo.org/records/21543770",
   githubUrl: "https://github.com/FairMedAI",
+  linkedinUrl: "https://www.linkedin.com/company/fairmedai",
   zenodoCommunityUrl: "https://zenodo.org/communities/fairmedai",
   licenseCode: "MIT",
   licensePaper: "CC-BY-4.0",

@@ -27,10 +27,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("fairmed-theme", theme);
-    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement | null;
-    if (link) {
-      link.href = theme === "dark" ? "/images/fairmed_FM_clean.png" : "/images/fairmed_FM_clean_white.png";
+    let link = document.querySelector("link[rel='icon'], link[rel='shortcut icon']") as HTMLLinkElement | null;
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
     }
+    link.href = (theme === "dark" ? "/images/fairmed_FM_clean.png" : "/images/fairmed_FM_clean_white.png") + "?v=" + theme;
   }, [theme]);
 
   const toggle = useCallback(() => setTheme((t) => (t === "light" ? "dark" : "light")), []);
