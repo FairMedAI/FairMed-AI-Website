@@ -18,6 +18,7 @@ export const NAV = [
   { id: "protocol", label: "Protocol", href: "/protocol" },
   { id: "community", label: "Community", href: "/community" },
   { id: "about", label: "About", href: "/about" },
+  { id: "tools", label: "Tools", href: "/tools" },
 ] as const;
 
 export const BIBTEX = `@misc{fairmed2026fairderm,
@@ -58,7 +59,6 @@ export const ROADMAP = [
   { domain: "Radiology", status: "next" as const, label: "Next" },
   { domain: "Ophthalmology", status: "planned" as const, label: "Planned" },
   { domain: "Pathology", status: "planned" as const, label: "Planned" },
-  { domain: "Any medical imaging where fairness matters", status: "planned" as const, label: "Planned" },
 ] as const;
 
 export const WP1_BADGE = {
@@ -243,4 +243,35 @@ export const ABOUT = {
     zenodo: "fairmedai community",
     issues: "open GitHub issue for audit collaboration",
   },
+} as const;
+
+export const TOOLS = {
+  heading: "Tools",
+  subtitle:
+    "Open, leakage-aware audits for medical imaging. 100% local, no data leaves your browser.",
+  items: [
+    {
+      id: "scanner",
+      title: "Leakage Scanner",
+      status: "live" as const,
+      description:
+        "SHA256-based duplicate + leakage detection for train/test splits. Seed 42 protocol.",
+      tags: ["Dermatology", "Radiology", "Ophthalmology", "Pathology"],
+      href: "/tools/scanner",
+    },
+    {
+      id: "gap-calc",
+      title: "Fairness Gap Calculator",
+      status: "coming-soon" as const,
+      description:
+        "Calculate per-subgroup metrics and fairness gaps from your CSV.",
+    },
+    {
+      id: "stratified-eval",
+      title: "Stratified Eval",
+      status: "coming-soon" as const,
+      description:
+        "Skin-tone / subgroup stratified evaluation.",
+    },
+  ],
 } as const;

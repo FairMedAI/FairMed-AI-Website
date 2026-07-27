@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairMed Scanner — Leakage Audit</title>
+<style>
+  body{font-family:Inter,system-ui,sans-serif;background:#0a0a0a;color:#fff;margin:0;padding:40px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:32px;margin:0} p{color:#888}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:30px 0}
+  .drop{border:2px dashed #333;border-radius:16px;padding:40px;text-align:center;background:#111;transition:.2s}
+  .drop.dragover{border-color:#fff;background:#1a1a1a}
+  .btn{background:#fff;color:#000;padding:12px 24px;border-radius:999px;border:0;font-weight:600;cursor:pointer;margin-top:20px}
+  pre{background:#111;border:1px solid #222;padding:20px;border-radius:12px;overflow:auto;white-space:pre-wrap}
+  .ok{color:#22c55e} .bad{color:#ef4444} .warn{color:#f59e0b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FairMed Scanner</h1>
+  <p>SHA256 leakage + duplicate audit for ANY medical dataset. 100% in-browser, no upload. Seed 42.</p>
+  
+  <div class="grid">
+    <div class="drop" id="trainDrop">
+      <h3>TRAIN folder</h3>
+      <p id="trainInfo">Drop folder or click</p>
+      <input type="file" id="trainInput" webkitdirectory multiple hidden/>
+    </div>
+    <div class="drop" id="testDrop">
+      <h3>TEST folder</h3>
+      <p id="testInfo">Drop folder or click</p>
+      <input type="file" id="testInput" webkitdirectory multiple hidden/>
+    </div>
+  </div>
+  
+  <button class="btn" id="runBtn">Run Audit</button>
+  <div id="result" style="margin-top:30px"></div>
+  <pre id="jsonOut" style="display:none"></pre>
+</div>
+
+<script>
+let trainFiles=[], testFiles=[];
+
+function setupDrop(dropId, inputId, store, infoId){
+  const drop=document.getElementById(dropId);
+  const input=document.getElementById(inputId);
+  const info=document.getElementById(infoId);
+  drop.addEventListener('click',()=>input.click());
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover')});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('dragover'));
+  drop.addEventListener('drop',e=>{
+    e.preventDefault();drop.classList.remove('dragover');
+    store.length=0;
+    for(let f of e.dataTransfer.files) if(f.size>0) store.push(f);
+    info.textContent=`${store.length} files`;
+  });
+  input.addEventListener('change',()=>{
+    store.length=0;
+    for(let f of input.files) store.push(f);
+    info.textContent=`${store.length} files`;
+  });
+}
+setupDrop('trainDrop','trainInput',trainFiles,'trainInfo');
+setupDrop('testDrop','testInput',testFiles,'testInfo');
+
+async function sha256(file){
+  const buf=await file.arrayBuffer();
+  const hash=await crypto.subtle.digest('SHA-256', buf);
+  return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+document.getElementById('runBtn').onclick=async()=>{
+  if(trainFiles.length==0 || testFiles.length==0){alert('Add both train and test folders');return;}
+  const res=document.getElementById('result');
+  res.innerHTML='Hashing... this is all local, no upload';
+  
+  async function index(files){
+    const map=new Map(); // hash -> [names]
+    const fileToHash=new Map();
+    for(let f of files){
+      if(f.name.startsWith('.')) continue;
+      const h=await sha256(f);
+      fileToHash.set(f.name+h, h);
+      if(!map.has(h)) map.set(h, []);
+      map.get(h).push(f.webkitRelativePath || f.name);
+    }
+    return {map, fileToHash, count:files.length};
+  }
+  
+  const train=await index(trainFiles);
+  const test=await index(testFiles);
+  
+  const dupInside=[...train.map.entries()].filter(([h,arr])=>arr.length>1);
+  const leakage=[...train.map.keys()].filter(h=>test.map.has(h));
+  
+  const pct = test.map.size? ((leakage.length/test.map.size)*100).toFixed(1):0;
+  
+  let html=`<h2 class="${leakage.length?'bad':'ok'}">${leakage.length?`🚨 LEAKAGE: ${leakage.length} (${pct}%)`:'✅ No leakage — Clean split'}</h2>`;
+  html+=`<p>Train: ${train.count} files (${train.map.size} unique) | Test: ${test.count} files (${test.map.size} unique)<br>`;
+  html+=`Duplicates inside train: ${dupInside.length}</p>`;
+  
+  if(leakage.length){
+    html+='<h3>Leaked files (first 20)</h3><ul>';
+    leakage.slice(0,20).forEach(h=>{
+      html+=`<li><code>${h.slice(0,16)}</code> — train: ${train.map.get(h)[0]} → test: ${test.map.get(h)[0]}</li>`;
+    });
+    html+='</ul>';
+  }
+  
+  const report={
+    train_count: train.count,
+    test_count: test.count,
+    unique_train: train.map.size,
+    unique_test: test.map.size,
+    duplicates_inside_train: dupInside.length,
+    leakage_count: leakage.length,
+    leakage_pct: parseFloat(pct),
+    protocol: "SHA256, seed 42, 60/20/20 expected"
+  };
+  
+  res.innerHTML=html;
+  const j=document.getElementById('jsonOut');
+  j.style.display='block';
+  j.textContent=JSON.stringify(report,null,2);
+};
+
+</script>
+</body>
+</html>
