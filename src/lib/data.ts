@@ -8,6 +8,8 @@ export const SITE = {
   githubUrl: "https://github.com/FairMedAI",
   linkedinUrl: "https://www.linkedin.com/company/fairmedai",
   zenodoCommunityUrl: "https://zenodo.org/communities/fairmedai",
+  personalGithubUrl: "https://github.com/ShanmukaGottimukkala",
+  personalLinkedinUrl: "https://www.linkedin.com/in/shanmuka-gottimukkala/",
   licenseCode: "MIT",
   licensePaper: "CC-BY-4.0",
 } as const;

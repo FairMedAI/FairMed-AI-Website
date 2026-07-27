@@ -28,6 +28,14 @@ export default function AboutPage() {
               {paragraph}
             </p>
           ))}
+          <div className="flex items-center gap-4 mt-2">
+            <a href={SITE.personalLinkedinUrl} target="_blank" rel="noopener noreferrer" className="text-[13px] font-mono link-accent inline-flex items-center gap-1.5 hover:underline">
+              LinkedIn <ArrowUpRight size={11} />
+            </a>
+            <a href={SITE.personalGithubUrl} target="_blank" rel="noopener noreferrer" className="text-[13px] font-mono link-accent inline-flex items-center gap-1.5 hover:underline">
+              <GithubIcon size={12} /> GitHub <ArrowUpRight size={11} />
+            </a>
+          </div>
         </div>
       </section>
 

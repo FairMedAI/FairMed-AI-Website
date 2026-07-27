@@ -17,6 +17,9 @@ export function Footer() {
             <Link href="/community" className="hover:opacity-70 transition-opacity">Community</Link>
           </div>
         </div>
+        <p className="text-[11px] font-mono text-muted text-center mt-4 opacity-60">
+          Not a medical device. For research audit only. Last audited July 2026 | Scanner v1 | 656 images
+        </p>
       </div>
     </footer>
   );
