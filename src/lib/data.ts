@@ -294,26 +294,28 @@ export const ARCHIVE = {
   heading: "Archive",
   subtitle:
     "Functional test datasets for every tool. Download, drop into the tool, verify it works.",
-  note: "All data is synthetic or sourced under permissive licenses. No patient data.",
+  note: "Data sourced from DDI (Diverse Dermatology Images) under permissive license. No patient data.",
   datasets: [
     {
       id: "dermatology-sample",
       title: "Dermatology Sample",
       description:
-        "Small set of skin lesion images split into train/test folders with metadata CSV. Includes intentional duplicates for scanner testing.",
+        "Small set of real DDI skin lesion images split into train/test folders with metadata CSV. Stratified by skin tone, zero leakage verified via SHA256.",
       useWith: ["Scanner", "Split Maker"],
+      downloadHref: "/archive/dermatology-sample.zip",
       files: [
-        { name: "train/", type: "folder", count: "30 images" },
-        { name: "test/", type: "folder", count: "10 images" },
-        { name: "metadata.csv", type: "csv", count: "40 rows" },
+        { name: "train/", type: "folder", count: "5 images" },
+        { name: "test/", type: "folder", count: "5 images" },
+        { name: "metadata.csv", type: "csv", count: "10 rows" },
       ],
     },
     {
       id: "predictions-sample",
       title: "Predictions Sample",
       description:
-        "200-row predictions CSV with intentionally uneven accuracy across subgroups to demonstrate the fairness gap.",
+        "200-row predictions CSV with intentionally uneven accuracy across skin tones to demonstrate the fairness gap (light 85%, dark 50%).",
       useWith: ["Gap Calculator"],
+      downloadHref: "/archive/predictions-sample.csv",
       files: [
         { name: "predictions.csv", type: "csv", count: "200 rows" },
       ],
@@ -322,8 +324,9 @@ export const ARCHIVE = {
       id: "representation-sample",
       title: "Representation Sample",
       description:
-        "200-row metadata CSV with intentionally imbalanced subgroups to demonstrate the representation checker.",
+        "200-row metadata CSV with intentionally imbalanced skin-tone subgroups (60% dark, 25% medium, 15% light) to demonstrate the representation checker.",
       useWith: ["Representation Checker"],
+      downloadHref: "/archive/representation-sample.csv",
       files: [
         { name: "representation.csv", type: "csv", count: "200 rows" },
       ],

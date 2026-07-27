@@ -31,7 +31,8 @@ export default function ArchivePage() {
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[16px] font-semibold">{ds.title}</h3>
                 <a
-                  href={`/archive/${ds.id}.zip`}
+                  href={ds.downloadHref}
+                  download
                   className="link-accent text-[13px] font-medium inline-flex items-center gap-1"
                 >
                   Download <ArrowDown size={13} />
