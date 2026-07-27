@@ -32,7 +32,7 @@ export function Header() {
           <span className="text-[14px] font-semibold tracking-tight">{SITE.title}</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-5">
+        <nav className="hidden md:flex items-center gap-3">
           {NAV.map((item) => (
             <Link
               key={item.id}

@@ -16,6 +16,7 @@ export const NAV = [
   { id: "home", label: "Home", href: "/" },
   { id: "papers", label: "Papers", href: "/papers" },
   { id: "protocol", label: "Protocol", href: "/protocol" },
+  { id: "methods", label: "Methods", href: "/methods" },
   { id: "community", label: "Community", href: "/community" },
   { id: "about", label: "About", href: "/about" },
   { id: "tools", label: "Tools", href: "/tools" },
