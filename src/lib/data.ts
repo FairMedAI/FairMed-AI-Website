@@ -17,10 +17,11 @@ export const NAV = [
   { id: "papers", label: "Papers", href: "/papers" },
   { id: "protocol", label: "Protocol", href: "/protocol" },
   { id: "methods", label: "Methods", href: "/methods" },
-  { id: "community", label: "Community", href: "/community" },
-  { id: "about", label: "About", href: "/about" },
+  { id: "audit", label: "Audits", href: "/audit" },
   { id: "tools", label: "Tools", href: "/tools" },
   { id: "archive", label: "Archive", href: "/archive" },
+  { id: "community", label: "Community", href: "/community" },
+  { id: "about", label: "About", href: "/about" },
 ] as const;
 
 export const BIBTEX = `@misc{fairmed2026fairderm,
@@ -287,6 +288,23 @@ export const TOOLS = {
         "Calculate per-subgroup accuracy and fairness gaps from predictions CSV. Export LaTeX + JSON.",
       tags: ["Dermatology", "Radiology", "Ophthalmology", "Pathology"],
       href: "/tools/gap-calculator",
+    },
+  ],
+} as const;
+
+export const AUDITS = {
+  heading: "Audits",
+  subtitle:
+    "Leakage-aware, stratified evaluation of medical imaging datasets. Every audit is hash-verified, seed-42 reproducible, and open-source.",
+  items: [
+    {
+      id: "ddi",
+      title: "DDI Audit",
+      status: "live" as const,
+      description:
+        "Diverse Dermatology Images (Daneshjou et al. 2022, Stanford). 656 biopsy-confirmed images, 0 leakage verified via SHA256, 60/20/20 stratified split. Core finding: finetuning widens skin-tone gap from 0.05 to 0.33.",
+      tags: ["Dermatology", "656 images", "Zero leakage", "Seed 42"],
+      href: "/audit/ddi",
     },
   ],
 } as const;

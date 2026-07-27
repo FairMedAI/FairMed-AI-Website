@@ -574,6 +574,18 @@ export default function MethodsPage() {
         </div>
       </section>
 
+      {/* Limitations */}
+      <section className="mb-12">
+        <h2 className="text-[12px] font-mono tracking-widest uppercase mb-4 text-muted">
+          Limitations
+        </h2>
+        <p className="text-[15px] leading-[1.8]">
+          We don&apos;t claim clinical efficacy. Scanner checks file hashes only, not
+          semantic duplicates. Gap metrics depend on model predictions, not dataset
+          quality alone.
+        </p>
+      </section>
+
       <hr className="my-10 border-theme" />
 
       {/* Footer */}

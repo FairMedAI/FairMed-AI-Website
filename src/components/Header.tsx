@@ -25,14 +25,14 @@ export function Header() {
       className="sticky top-0 z-50 border-b transition-colors duration-200"
       style={{ borderColor: "var(--border)" }}
     >
-      <div className="mx-auto max-w-[680px] px-5 md:px-8 h-[56px] flex items-center justify-between">
+      <div className="mx-auto max-w-[960px] px-5 md:px-8 h-[56px] flex items-center justify-between">
         <Link href="/" onClick={closeMobile} className="flex items-center gap-2">
           <img src="/images/fairmed_FM_clean_white.png" alt="" className="logo-light h-[24px] w-auto" />
           <img src="/images/fairmed_FM_clean.png" alt="" className="logo-dark h-[24px] w-auto" />
           <span className="text-[14px] font-semibold tracking-tight">{SITE.title}</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-3">
+        <nav className="hidden md:flex items-center gap-5">
           {NAV.map((item) => (
             <Link
               key={item.id}
