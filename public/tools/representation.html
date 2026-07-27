@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairMed Representation Checker</title>
+<style>
+  body{font-family:Inter,system-ui,sans-serif;background:#0a0a0a;color:#fff;margin:0;padding:40px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:32px;margin:0} p{color:#888}
+  .drop{border:2px dashed #333;border-radius:16px;padding:40px;text-align:center;background:#111;transition:.2s;cursor:pointer}
+  .drop.dragover{border-color:#fff;background:#1a1a1a}
+  .btn{background:#fff;color:#000;padding:12px 24px;border-radius:999px;border:0;font-weight:600;cursor:pointer;margin-top:20px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  select{padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px;margin-top:10px}
+  .bar-row{display:flex;align-items:center;gap:12px;margin:6px 0}
+  .bar-label{min-width:120px;font-size:13px;font-family:monospace;text-align:right}
+  .bar{height:24px;background:#fff;border-radius:4px;transition:width .3s}
+  .bar-count{font-size:13px;color:#888;min-width:60px}
+  .stat{font-size:14px;margin:4px 0}
+  .ok{color:#22c55e} .bad{color:#ef4444} .warn{color:#f59e0b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Representation Checker</h1>
+  <p>Upload a metadata CSV to check subgroup representation and imbalance.</p>
+
+  <div class="drop" id="dropZone">
+    <h3>metadata.csv</h3>
+    <p id="dropInfo">Drop file or click</p>
+    <input type="file" id="fileInput" accept=".csv" hidden/>
+  </div>
+
+  <div id="colSelect" style="display:none;margin-top:20px">
+    <label style="font-size:13px;color:#888">Subgroup column:</label>
+    <select id="colDropdown"></select>
+    <button class="btn" id="runBtn">Analyze</button>
+  </div>
+
+  <div id="result" style="margin-top:30px"></div>
+</div>
+
+<script>
+let csvText='';
+let headers=[];
+
+const drop=document.getElementById('dropZone');
+const input=document.getElementById('fileInput');
+const info=document.getElementById('dropInfo');
+
+drop.addEventListener('click',()=>input.click());
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('dragover'));
+drop.addEventListener('drop',e=>{
+  e.preventDefault();drop.classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file)loadFile(file);
+});
+input.addEventListener('change',()=>{
+  if(input.files[0])loadFile(input.files[0]);
+});
+
+function loadFile(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    csvText=reader.result;
+    const lines=csvText.trim().split('\n');
+    headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+    const sel=document.getElementById('colDropdown');
+    sel.innerHTML='';
+    headers.forEach(h=>{
+      const opt=document.createElement('option');
+      opt.value=h;opt.textContent=h;
+      sel.appendChild(opt);
+    });
+    document.getElementById('colSelect').style.display='block';
+    info.textContent=file.name+' ('+headers.length+' columns, '+(lines.length-1)+' rows)';
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('runBtn').onclick=()=>{
+  const col=document.getElementById('colDropdown').value;
+  const lines=csvText.trim().split('\n');
+  const colIdx=headers.indexOf(col);
+  if(colIdx===-1){alert('Column not found');return;}
+
+  const counts={};
+  let total=0;
+  for(let i=1;i<lines.length;i++){
+    const cols=lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+    const val=cols[colIdx]||'unknown';
+    counts[val]=(counts[val]||0)+1;
+    total++;
+  }
+
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const maxCount=entries[0][1];
+  const minCount=entries[entries.length-1][1];
+  const imbalance=((maxCount-minCount)/maxCount*100).toFixed(1);
+
+  let html=`<p class="stat"><strong>Total:</strong> ${total} rows</p>`;
+  html+=`<p class="stat"><strong>Groups:</strong> ${entries.length}</p>`;
+  html+=`<p class="stat ${parseFloat(imbalance)>50?'bad':parseFloat(imbalance)>20?'warn':'ok'}"><strong>Imbalance:</strong> ${imbalance}% (max-min)/max</p>`;
+  html+='<div style="margin-top:20px">';
+  entries.forEach(([val,count])=>{
+    const pct=(count/maxCount*100).toFixed(0);
+    const groupPct=(count/total*100).toFixed(1);
+    html+=`<div class="bar-row">
+      <span class="bar-label">${val}</span>
+      <div class="bar" style="width:${pct}%;min-width:4px"></div>
+      <span class="bar-count">${count} (${groupPct}%)</span>
+    </div>`;
+  });
+  html+='</div>';
+
+  document.getElementById('result').innerHTML=html;
+};
+
+</script>
+</body>
+</html>

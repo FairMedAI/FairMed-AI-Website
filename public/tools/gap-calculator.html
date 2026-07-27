@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairMed Gap Calculator</title>
+<style>
+  body{font-family:Inter,system-ui,sans-serif;background:#0a0a0a;color:#fff;margin:0;padding:40px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:32px;margin:0} p{color:#888}
+  .drop{border:2px dashed #333;border-radius:16px;padding:40px;text-align:center;background:#111;transition:.2s;cursor:pointer}
+  .drop.dragover{border-color:#fff;background:#1a1a1a}
+  .btn{background:#fff;color:#000;padding:12px 24px;border-radius:999px;border:0;font-weight:600;cursor:pointer;margin-top:20px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn-sm{padding:8px 16px;font-size:12px;border-radius:999px;background:#222;color:#fff;border:1px solid #333;cursor:pointer}
+  select{padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px;margin-top:10px}
+  .card{border:1px solid #222;border-radius:12px;padding:16px;margin:8px 0;background:#111}
+  .card-title{font-size:12px;color:#888;font-family:monospace;text-transform:uppercase;letter-spacing:.05em}
+  .card-value{font-size:24px;font-weight:600;margin-top:4px}
+  .ok{color:#22c55e} .bad{color:#ef4444} .warn{color:#f59e0b}
+  pre{background:#111;border:1px solid #222;padding:20px;border-radius:12px;overflow:auto;white-space:pre-wrap;font-size:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:600px){.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fairness Gap Calculator</h1>
+  <p>Upload predictions.csv: image_id, true_label, pred_label, subgroup</p>
+
+  <div class="drop" id="dropZone">
+    <h3>predictions.csv</h3>
+    <p id="dropInfo">Drop file or click</p>
+    <input type="file" id="fileInput" accept=".csv" hidden/>
+  </div>
+
+  <div id="colSelect" style="display:none;margin-top:20px">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:end">
+      <div><label style="font-size:12px;color:#888;display:block">Subgroup column</label><select id="subCol"></select></div>
+      <div><label style="font-size:12px;color:#888;display:block">True label column</label><select id="trueCol"></select></div>
+      <div><label style="font-size:12px;color:#888;display:block">Pred label column</label><select id="predCol"></select></div>
+    </div>
+    <button class="btn" id="runBtn">Calculate</button>
+  </div>
+
+  <div id="result" style="margin-top:30px"></div>
+</div>
+
+<script>
+let csvText='';
+let headers=[];
+
+const drop=document.getElementById('dropZone');
+const input=document.getElementById('fileInput');
+const info=document.getElementById('dropInfo');
+
+drop.addEventListener('click',()=>input.click());
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('dragover'));
+drop.addEventListener('drop',e=>{
+  e.preventDefault();drop.classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file)loadFile(file);
+});
+input.addEventListener('change',()=>{
+  if(input.files[0])loadFile(input.files[0]);
+});
+
+function loadFile(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    csvText=reader.result;
+    const lines=csvText.trim().split('\n');
+    headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+    [['subCol','subgroup'],['trueCol','true_label'],['predCol','pred_label']].forEach(([id,def])=>{
+      const sel=document.getElementById(id);
+      sel.innerHTML='';
+      headers.forEach(h=>{
+        const opt=document.createElement('option');
+        opt.value=h;opt.textContent=h;
+        if(h.toLowerCase().includes(def.toLowerCase()))opt.selected=true;
+        sel.appendChild(opt);
+      });
+    });
+    document.getElementById('colSelect').style.display='block';
+    info.textContent=file.name+' ('+(lines.length-1)+' rows)';
+  };
+  reader.readAsText(file);
+}
+
+function populateSelects(){
+  headers.forEach(h=>{
+    ['subCol','trueCol','predCol'].forEach(id=>{
+      const sel=document.getElementById(id);
+      const opt=document.createElement('option');
+      opt.value=h;opt.textContent=h;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+document.getElementById('runBtn').onclick=()=>{
+  const subIdx=headers.indexOf(document.getElementById('subCol').value);
+  const trueIdx=headers.indexOf(document.getElementById('trueCol').value);
+  const predIdx=headers.indexOf(document.getElementById('predCol').value);
+  if([subIdx,trueIdx,predIdx].includes(-1)){alert('Pick all columns');return;}
+
+  const lines=csvText.trim().split('\n');
+  const groups={};
+  let totalCorrect=0,totalRows=0;
+
+  for(let i=1;i<lines.length;i++){
+    const cols=lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+    const sub=cols[subIdx]||'unknown';
+    const truth=cols[trueIdx];
+    const pred=cols[predIdx];
+    if(!groups[sub])groups[sub]={correct:0,total:0};
+    groups[sub].total++;
+    totalRows++;
+    if(truth===pred){groups[sub].correct++;totalCorrect++;}
+  }
+
+  const overallAcc=(totalCorrect/totalRows*100).toFixed(2);
+  const groupAccs=Object.entries(groups).map(([name,g])=>({
+    name,correct:g.correct,total:g.total,acc:(g.correct/g.total*100).toFixed(2)
+  })).sort((a,b)=>b.acc-a.acc);
+
+  const maxAcc=parseFloat(groupAccs[0].acc);
+  const minAcc=parseFloat(groupAccs[groupAccs.length-1].acc);
+  const gap=(maxAcc-minAcc).toFixed(2);
+
+  let html='<div class="grid3">';
+  html+=`<div class="card"><div class="card-title">Overall Accuracy</div><div class="card-value">${overallAcc}%</div></div>`;
+  html+=`<div class="card"><div class="card-title">Groups</div><div class="card-value">${groupAccs.length}</div></div>`;
+  html+=`<div class="card"><div class="card-title">Fairness Gap</div><div class="card-value ${parseFloat(gap)>10?'bad':parseFloat(gap)>5?'warn':'ok'}">${gap}%</div></div>`;
+  html+='</div>';
+
+  html+='<div style="margin-top:16px">';
+  groupAccs.forEach(g=>{
+    const cls=parseFloat(g.acc)===maxAcc?'ok':parseFloat(g.acc)===minAcc?'bad':'';
+    html+=`<div class="card"><span class="card-title">${g.name}</span><span class="card-value ${cls}" style="margin-left:12px">${g.acc}%</span><span style="color:#888;font-size:13px;margin-left:8px">(${g.correct}/${g.total})</span></div>`;
+  });
+  html+='</div>';
+
+  const latex=`\\textbf{Overall accuracy:} ${overallAcc}\\% \\\\\n\\textbf{Fairness gap (max--min):} ${gap}\\% \\\\\n${groupAccs.map(g=>`\\textbf{${g.name}:} ${g.acc}\\% (${g.correct}/${g.total})`).join(' \\\\\n')}`;
+
+  html+=`<div style="margin-top:20px"><button class="btn-sm" id="copyLatex">Copy LaTeX</button> <button class="btn-sm" id="downloadJson">Download audit_report.json</button></div>`;
+  html+=`<pre id="latexBlock" style="margin-top:10px">${latex}</pre>`;
+
+  document.getElementById('result').innerHTML=html;
+
+  document.getElementById('copyLatex').onclick=()=>{
+    navigator.clipboard.writeText(latex);
+    document.getElementById('copyLatex').textContent='Copied!';
+    setTimeout(()=>document.getElementById('copyLatex').textContent='Copy LaTeX',1500);
+  };
+
+  const report={overall_accuracy:parseFloat(overallAcc),fairness_gap:parseFloat(gap),groups:groupAccs.map(g=>({name:g.name,accuracy:parseFloat(g.acc),correct:g.correct,total:g.total}))};
+  document.getElementById('downloadJson').onclick=()=>{
+    const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='audit_report.json';a.click();
+  };
+};
+
+</script>
+</body>
+</html>

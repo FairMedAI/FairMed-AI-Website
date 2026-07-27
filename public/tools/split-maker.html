@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairMed Split Maker</title>
+<style>
+  body{font-family:Inter,system-ui,sans-serif;background:#0a0a0a;color:#fff;margin:0;padding:40px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:32px;margin:0} p{color:#888}
+  .drop{border:2px dashed #333;border-radius:16px;padding:40px;text-align:center;background:#111;transition:.2s;cursor:pointer}
+  .drop.dragover{border-color:#fff;background:#1a1a1a}
+  .btn{background:#fff;color:#000;padding:12px 24px;border-radius:999px;border:0;font-weight:600;cursor:pointer;margin-top:20px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  pre{background:#111;border:1px solid #222;padding:20px;border-radius:12px;overflow:auto;white-space:pre-wrap}
+  .inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:30px 0}
+  .field label{display:block;font-size:12px;color:#888;margin-bottom:4px;font-family:monospace}
+  .field input{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px;box-sizing:border-box}
+  .ok{color:#22c55e} .bad{color:#ef4444}
+  @media(max-width:600px){.inputs{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Split Maker</h1>
+  <p>Deterministic train/val/test split with SHA256 dedup. Mulberry32 PRNG, seed 42.</p>
+
+  <div class="drop" id="dropZone">
+    <h3>DATASET folder</h3>
+    <p id="dropInfo">Drop folder or click</p>
+    <input type="file" id="fileInput" webkitdirectory multiple hidden/>
+  </div>
+
+  <div class="inputs">
+    <div class="field"><label>Train %</label><input type="number" id="trainPct" value="60" min="1" max="99"/></div>
+    <div class="field"><label>Val %</label><input type="number" id="valPct" value="20" min="0" max="99"/></div>
+    <div class="field"><label>Test %</label><input type="number" id="testPct" value="20" min="0" max="99"/></div>
+    <div class="field"><label>Seed</label><input type="number" id="seedInput" value="42"/></div>
+  </div>
+
+  <button class="btn" id="runBtn" disabled>Run Split</button>
+  <div id="result" style="margin-top:30px"></div>
+  <pre id="jsonOut" style="display:none"></pre>
+</div>
+
+<script>
+let allFiles=[];
+
+const drop=document.getElementById('dropZone');
+const input=document.getElementById('fileInput');
+const info=document.getElementById('dropInfo');
+const runBtn=document.getElementById('runBtn');
+
+drop.addEventListener('click',()=>input.click());
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover')});
+drop.addEventListener('dragleave',()=>drop.classList.remove('dragover'));
+drop.addEventListener('drop',e=>{
+  e.preventDefault();drop.classList.remove('dragover');
+  allFiles.length=0;
+  for(let f of e.dataTransfer.files) if(f.size>0) allFiles.push(f);
+  info.textContent=allFiles.length+' files';
+  runBtn.disabled=allFiles.length===0;
+});
+input.addEventListener('change',()=>{
+  allFiles.length=0;
+  for(let f of input.files) if(f.size>0) allFiles.push(f);
+  info.textContent=allFiles.length+' files';
+  runBtn.disabled=allFiles.length===0;
+});
+
+async function sha256(file){
+  const buf=await file.arrayBuffer();
+  const hash=await crypto.subtle.digest('SHA-256',buf);
+  return[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function mulberry32(a){
+  return function(){
+    a|=0;a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  }
+}
+
+runBtn.onclick=async()=>{
+  if(!allFiles.length)return;
+  const res=document.getElementById('result');
+  res.innerHTML='Hashing files...';
+
+  const trainPct=parseFloat(document.getElementById('trainPct').value)||60;
+  const valPct=parseFloat(document.getElementById('valPct').value)||20;
+  const testPct=parseFloat(document.getElementById('testPct').value)||20;
+  const seed=parseInt(document.getElementById('seedInput').value)||42;
+
+  const total=trainPct+valPct+testPct;
+  if(Math.abs(total-100)>0.01){res.innerHTML='<h2 class="bad">Percentages must sum to 100</h2>';return;}
+
+  const entries=[];
+  const seen=new Set();
+  let dupes=0;
+  for(let f of allFiles){
+    if(f.name.startsWith('.'))continue;
+    const h=await sha256(f);
+    if(seen.has(h)){dupes++;continue;}
+    seen.add(h);
+    entries.push({path:f.webkitRelativePath||f.name,hash:h});
+  }
+
+  const rng=mulberry32(seed);
+  for(let i=entries.length-1;i>0;i--){
+    const j=Math.floor(rng()*(i+1));
+    [entries[i],entries[j]]=[entries[j],entries[i]];
+  }
+
+  const n=entries.length;
+  const nTrain=Math.floor(n*trainPct/100);
+  const nVal=Math.floor(n*valPct/100);
+  const nTest=n-nTrain-nVal;
+
+  const train=entries.slice(0,nTrain);
+  const val=entries.slice(nTrain,nTrain+nVal);
+  const test=entries.slice(nTrain+nVal);
+
+  const report={
+    seed,
+    split:`${trainPct}/${valPct}/${testPct}`,
+    total_files:allFiles.length,
+    unique_files:n,
+    duplicates_removed:dupes,
+    train:train.length,
+    val:val.length,
+    test:test.length,
+    train:train.map(e=>e.path),
+    val:val.map(e=>e.path),
+    test:test.map(e=>e.path),
+  };
+
+  let html=`<h2 class="ok">Split complete</h2>`;
+  html+=`<p>Total: ${allFiles.length} | Unique: ${n} | Dupes removed: ${dupes}</p>`;
+  html+=`<p>Train: ${train.length} | Val: ${val.length} | Test: ${test.length}</p>`;
+  res.innerHTML=html;
+
+  const j=document.getElementById('jsonOut');
+  j.style.display='block';
+  j.textContent=JSON.stringify(report,null,2);
+};
+
+</script>
+</body>
+</html>

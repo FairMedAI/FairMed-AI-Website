@@ -19,6 +19,7 @@ export const NAV = [
   { id: "community", label: "Community", href: "/community" },
   { id: "about", label: "About", href: "/about" },
   { id: "tools", label: "Tools", href: "/tools" },
+  { id: "archive", label: "Archive", href: "/archive" },
 ] as const;
 
 export const BIBTEX = `@misc{fairmed2026fairderm,
@@ -260,18 +261,72 @@ export const TOOLS = {
       href: "/tools/scanner",
     },
     {
-      id: "gap-calc",
-      title: "Fairness Gap Calculator",
-      status: "coming-soon" as const,
+      id: "split-maker",
+      title: "Split Maker",
+      status: "live" as const,
       description:
-        "Calculate per-subgroup metrics and fairness gaps from your CSV.",
+        "Deterministic train/val/test split with SHA256 dedup. Mulberry32 PRNG, seed 42.",
+      tags: ["Dermatology", "Radiology", "Ophthalmology", "Pathology"],
+      href: "/tools/split-maker",
     },
     {
-      id: "stratified-eval",
-      title: "Stratified Eval",
-      status: "coming-soon" as const,
+      id: "representation",
+      title: "Representation Checker",
+      status: "live" as const,
       description:
-        "Skin-tone / subgroup stratified evaluation.",
+        "Upload metadata CSV to check subgroup representation and imbalance.",
+      tags: ["Dermatology", "Radiology", "Ophthalmology", "Pathology"],
+      href: "/tools/representation",
+    },
+    {
+      id: "gap-calc",
+      title: "Fairness Gap Calculator",
+      status: "live" as const,
+      description:
+        "Calculate per-subgroup accuracy and fairness gaps from predictions CSV. Export LaTeX + JSON.",
+      tags: ["Dermatology", "Radiology", "Ophthalmology", "Pathology"],
+      href: "/tools/gap-calculator",
+    },
+  ],
+} as const;
+
+export const ARCHIVE = {
+  heading: "Archive",
+  subtitle:
+    "Functional test datasets for every tool. Download, drop into the tool, verify it works.",
+  note: "All data is synthetic or sourced under permissive licenses. No patient data.",
+  datasets: [
+    {
+      id: "dermatology-sample",
+      title: "Dermatology Sample",
+      description:
+        "Small set of skin lesion images split into train/test folders with metadata CSV. Includes intentional duplicates for scanner testing.",
+      useWith: ["Scanner", "Split Maker"],
+      files: [
+        { name: "train/", type: "folder", count: "30 images" },
+        { name: "test/", type: "folder", count: "10 images" },
+        { name: "metadata.csv", type: "csv", count: "40 rows" },
+      ],
+    },
+    {
+      id: "predictions-sample",
+      title: "Predictions Sample",
+      description:
+        "200-row predictions CSV with intentionally uneven accuracy across subgroups to demonstrate the fairness gap.",
+      useWith: ["Gap Calculator"],
+      files: [
+        { name: "predictions.csv", type: "csv", count: "200 rows" },
+      ],
+    },
+    {
+      id: "representation-sample",
+      title: "Representation Sample",
+      description:
+        "200-row metadata CSV with intentionally imbalanced subgroups to demonstrate the representation checker.",
+      useWith: ["Representation Checker"],
+      files: [
+        { name: "representation.csv", type: "csv", count: "200 rows" },
+      ],
     },
   ],
 } as const;

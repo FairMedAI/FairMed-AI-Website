@@ -24,22 +24,12 @@ export default function ToolsPage() {
           {TOOLS.items.map((tool) => (
             <div
               key={tool.id}
-              className={`border border-theme rounded-lg p-5 transition-colors ${
-                tool.status === "coming-soon"
-                  ? "opacity-50"
-                  : "hover:bg-[color-mix(in_srgb,var(--fg)_2%,transparent)]"
-              }`}
+              className="border border-theme rounded-lg p-5 transition-colors hover:bg-[color-mix(in_srgb,var(--fg)_2%,transparent)]"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-[16px] font-semibold">{tool.title}</h3>
-                <span
-                  className={`text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded ${
-                    tool.status === "live"
-                      ? "text-green-600 dark:text-green-400 bg-green-600/10"
-                      : "text-muted bg-[color-mix(in_srgb,var(--fg)_6%,transparent)]"
-                  }`}
-                >
-                  {tool.status === "live" ? "LIVE" : "COMING SOON"}
+                <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-green-600 dark:text-green-400 bg-green-600/10">
+                  LIVE
                 </span>
               </div>
               <p className="text-[14px] leading-relaxed text-muted mb-3">
