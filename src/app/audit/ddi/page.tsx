@@ -13,12 +13,23 @@ print(f"Overlap: {len(overlap)}")  # must be 0`;
 export default function DDIAuditPage() {
   return (
     <div className="mx-auto max-w-[680px] px-5 md:px-8 py-16 md:py-24">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 text-[13px] mb-8 transition-opacity hover:opacity-70 text-muted"
-      >
-        <ArrowLeft size={14} /> Home
-      </Link>
+      <div className="flex items-center gap-4 mb-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-[13px] transition-opacity hover:opacity-70 text-muted"
+        >
+          <ArrowLeft size={14} /> Home
+        </Link>
+        <span className="text-muted">·</span>
+        <a
+          href="https://github.com/FairMedAI/fairderm-audit"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-[13px] transition-opacity hover:opacity-70 text-muted"
+        >
+          GitHub <ArrowUpRight size={12} />
+        </a>
+      </div>
 
       {/* ── 1. Header ────────────────────────────────────── */}
       <h1 className="text-[28px] md:text-[36px] font-semibold tracking-tight mb-3">
