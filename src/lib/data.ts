@@ -23,6 +23,7 @@ export const NAV = [
   { id: "tools", label: "Tools", href: "/tools" },
   { id: "archive", label: "Archive", href: "/archive" },
   { id: "community", label: "Community", href: "/community" },
+  { id: "team", label: "Team", href: "/team" },
   { id: "about", label: "About", href: "/about" },
 ] as const;
 
@@ -211,6 +212,40 @@ export const COMMUNITY = {
     "Add new dataset (e.g., PAD-UFES-20) with Fitz labels",
     "Audit new architecture (ViT, ConvNeXt) with same protocol",
     "Propose synthetic method, keep train-only, report gap",
+  ],
+} as const;
+
+export const TEAM = {
+  heading: "Team",
+  founder: {
+    name: "Shanmuka Gottimukkala",
+    role: "Founder & Lead Researcher",
+    initials: "SG",
+    photo: "/images/shanmuka.jpeg",
+    bio: [
+      "I'm Shanmuka Gottimukkala, a Junior at Milton High School and founder of FairMed AI, a student-led research platform advancing fairness and open science in medical imaging.",
+      "I started coding in 3rd grade after I used inspect element to put my name on my school website and realized systems aren't fixed — they're editable. Since then I've built full-stack MERN apps, a restaurant order tracker with live status, a desktop-style OS interface with draggable windows, an emotion-aware IoT desk assistant with Raspberry Pi and environmental sensors, an ultrasonic laser measurement tool, and a CNN satellite pollution classifier that won 2nd Place in Fulton County Student Technology Competition 2026.",
+      "My flagship work is FairMed AI: a research platform which works to advancing fairness and open science in medical imaging. I worked with Stanford's 656-image Diverse Dermatology Images dataset. I built a reproducible benchmark 393/131/132 with SHA-256 verification and zero leakage, and measured a 0.3281 gap between light skin F1 0.8000 and dark skin F1 0.4719 — a gap that widens after training. Simple color augmentation failed p=0.429, which is why I'm now building bias-aware methods.",
+      "I also publish for builders: I created and published an open-source NPM package OneLanggg with 360+ downloads, published 3D models like Doc Ock arms with inverse kinematics with 3.7k+ views and 1000+ downloads on Sketchfab, produced Blender VFX short films, and released a music album across Spotify and YouTube with 400+ streams.",
+      "I founded Telugu AI/CS content on Telugu Wikipedia, writing Neural Networks, Deep Learning, and CNN articles from scratch for 100M+ speakers, now linked to 70+ global editions.",
+      "I founded Welcome Programming to teach beginners CS with zero experience required, and serve as Secretary of Milton Coders, a nationally recognized Hack Club chapter of 30+ where I led workshops driving 50% growth.",
+      "Awards: USACO Gold — with perfect 1000/1000 and Rank 1 in Bronze out of 2,374 and Silver out of 1,916, 2nd Place GaSTC Programming Competition 11-12 band, 2nd Place Novice / 5th Overall Lockheed Martin Code Quest solving 26 problems, Honorable Mention Scholastic Art & Writing for Digital Art.",
+    ],
+    linkedin: "https://www.linkedin.com/in/shanmuka-gottimukkala/",
+  },
+  advisors: [
+    {
+      name: "Vaibhav C. Gandhi",
+      role: "Volunteer Research Advisor — AI Fairness & Medical Imaging",
+      initials: "VG",
+      photo: "/images/VB.jpg",
+      bio: [
+        "Vaibhav C. Gandhi is Assistant Professor in the Department of Computer Engineering at Madhuben and Bhanubhai Patel Institute of Technology, CVM University, Anand, Gujarat, with 12 years of teaching experience, and Research Scholar at Gujarat Technological University, Ahmedabad.",
+        "His core expertise is medical AI imaging — he is first author of MelanomaNet: Deep Learning for Skin Cancer Diagnosis Through Inception V3, directly aligned with FairMed AI's dermatology focus, and co-author of HyperComplEx: Adaptive Multi-Space Knowledge Graph Embeddings as 4th author for structured medical knowledge representation. His portfolio includes a survey on ML and DL in Health Domain, signal optimization with machine learning, and a 2024 patent filing as Assistant Professor Department of Computer Engineering MBIT CVM University for AI-driven Muscle Activity Recognition in EMG Signals.",
+        "At FairMed AI, he advises on leakage-proof benchmark design, skin-tone stratified evaluation, and moving beyond naive color augmentation — a volunteer role, 1 hr/month, listed only with written approval.",
+      ],
+      linkedin: "https://www.linkedin.com/in/dr-vaibhav-c-gandhi-29b40b51/",
+    },
   ],
 } as const;
 
