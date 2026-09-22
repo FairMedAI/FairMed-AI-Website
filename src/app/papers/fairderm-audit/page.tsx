@@ -27,7 +27,7 @@ export default function WP1DetailPage() {
       <div className="flex items-center gap-3 mb-4 text-[12px] font-mono text-muted">
         <span>WP1</span>
         <span>·</span>
-        <span>July 25 2026</span>
+        <span>September 22 2026</span>
         <span>·</span>
         <a href={SITE.doiUrl} target="_blank" rel="noopener noreferrer" className="link-accent">
           DOI {SITE.doi}
@@ -46,7 +46,7 @@ export default function WP1DetailPage() {
         >
           <div className="flex items-center gap-3 mb-3">
             <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-amber-600 dark:text-amber-400 bg-amber-600/10">
-              Update · July 2026
+              Update · September 2026
             </span>
             <span className="text-[12px] font-mono text-muted">Clean, leakage-free run</span>
           </div>
