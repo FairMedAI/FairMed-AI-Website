@@ -39,23 +39,32 @@ export const BIBTEX = `@misc{fairmed2026fairderm,
 
 export const METRICS_JSON = {
   seed: 42,
-  split: "60/20/20 stratified dx x fitz x source",
-  n_total: 16123,
+  split: "60/20/20 stratified label x skin_tone",
+  n_total: 656,
+  n_test: 132,
   leakage_check: "SHA256 cross-split dupes=0",
+  synthetic: {
+    n: 290,
+    source: "29 train-split dark melanomas",
+    check: "SHA256 zero overlap with 132 test images",
+  },
   results: [
-    { method: "baseline_imagenet", auc_overall: 0.611, auc_dark: 0.572, auc_light: 0.644, gap: -0.0719 },
-    { method: "finetuned_derm", auc_overall: 0.733, auc_dark: 0.612, auc_light: 0.831, gap: -0.2187 },
-    { method: "finetuned+synthetic_2x_dark", auc_overall: 0.774, auc_dark: 0.738, auc_light: 0.804, gap: -0.0656, delta_auc: 0.041 },
+    { method: "baseline_imagenet", auc_dark: 0.5875, auc_light: 0.7188, gap: -0.1313 },
+    { method: "finetuned_derm", auc_dark: 0.5469, auc_light: 0.7563, gap: -0.2094 },
+    { method: "finetuned+synthetic_dark_mel", auc_dark: 0.4813, auc_light: 0.7719, gap: -0.2906, delta_auc_dark: -0.0663 },
   ],
-  photometric_control: { p_value: 0.524, significant: false },
+  paired_dark_delta: { delta: -0.0663, ci_95: [-0.1508, 0.0080], p: 0.9620 },
   bootstrap: { n: 1000, ci: "95% BCa" },
-  n_dark_melanoma: 10,
+  test_groups: "42 Light / 48 Medium / 42 Dark, 10 melanomas per reported subgroup",
+  caveat:
+    "Baseline checkpoint is partial (best validation epoch 5); a full 15-epoch run is pending. Bootstrap CIs are wide - results are directional, not definitive.",
 } as const;
 
 export const HOME = {
   subtitle: "Leakage-aware, stratified evaluation of medical imaging AI. Starting with dermatology.",
   intro: "Medical imaging AI models degrade across subgroups. Most evaluations hide this by conflating algorithmic bias with dataset leakage. We audit openly: every image SHA256-hashed, every split published [60/20/20 seed 42], every metric reported with subgroup breakdowns. Starting with dermatology [skin-tone], expanding to radiology, ophthalmology, pathology.",
-  finding: "Finetuning a ResNet-50 on dermatology data boosts overall AUC from 0.611 to 0.733, but the dark-light fairness gap widens from -7.19% to -21.87%. Photometric augmentation (brightness/contrast) fails to close it (p=0.524). Controlled synthetic augmentation at 2x restores AUC to 0.774 and narrows the gap to -6.56%.",
+  finding:
+    "On the DDI test set (n=132; 42 Light / 48 Medium / 42 Dark, 10 melanomas per reported subgroup), the baseline ResNet-50 achieves Light AUROC 0.7188 vs. Dark AUROC 0.5875 (gap -0.1313). Fine-tuning changes these to 0.7563 vs. 0.5469 (gap -0.2094). Adding synthetic dark melanomas changes them to 0.7719 vs. 0.4813 (gap -0.2906); the paired Dark AUROC delta is -0.0663 (95% CI [-0.1508, 0.0080], p = 0.9620). Simple photometric augmentation cannot meaningfully close the skin-tone gap. The next step is richer generative models, such as GANs or diffusion models.",
   paperLink: "/papers/fairderm-audit",
   paperTitle: "FairDerm-Audit: Leakage-Aware Evaluation of Synthetic Augmentation for Skin-Tone Fairness",
 } as const;
@@ -78,11 +87,11 @@ export const PAPERS = {
     date: "July 25 2026",
     title: "FairDerm-Audit: Leakage-Aware Evaluation of Synthetic Augmentation for Skin-Tone Fairness",
     summary:
-      "We audit three training regimes on ISIC + Fitzpatrick17k + DDI. Finetuning boosts AUC 0.611 to 0.733 but widens the skin-tone gap from -7.19% to -21.87%. Photometric augmentation fails (p=0.524). Controlled synthetic 2x augmentation restores AUC to 0.774 and closes the gap to -6.56%, with zero leakage verified via SHA256.",
+      "We audit three training regimes on DDI (Diverse Dermatology Images, n=656; test n=132, 42 Light / 48 Medium / 42 Dark, 10 melanomas per reported subgroup). Baseline Light AUROC 0.7188 vs. Dark 0.5875 (gap -0.1313). Fine-tuning changes these to 0.7563 vs. 0.5469 (gap -0.2094). Adding 290 synthetic dark-skin melanoma images generated from the 29 train-split dark melanomas (zero overlap verified via SHA256) changes them to 0.7719 vs. 0.4813 (gap -0.2906); the paired Dark AUROC delta is -0.0663 (95% CI [-0.1508, 0.0080], p = 0.9620).",
     results: [
-      { method: "Baseline", auc: "0.611", gap: "-7.19%", delta: "--" },
-      { method: "Finetuned", auc: "0.733", gap: "-21.87%", delta: "+12.2%" },
-      { method: "+ Synthetic 2x", auc: "0.774", gap: "-6.56%", delta: "+4.1%" },
+      { method: "Baseline", light: "0.7188", dark: "0.5875", gap: "-0.1313", delta: "--" },
+      { method: "Fine-tuned", light: "0.7563", dark: "0.5469", gap: "-0.2094", delta: "--" },
+      { method: "+ Synthetic dark mel.", light: "0.7719", dark: "0.4813", gap: "-0.2906", delta: "-0.0663" },
     ],
     detailLink: "/papers/fairderm-audit",
   },
@@ -96,39 +105,38 @@ export const PAPERS = {
 } as const;
 
 export const WP1_DETAIL = {
-  abstract: `Dermatology AI shows degraded performance on dark skin, yet evaluation often conflates algorithmic bias with dataset leakage. We present FairDerm-Audit, a leakage-aware protocol auditing three regimes on ISIC 2020 + Fitzpatrick17k + DDI (n=16,123). Baseline ImageNet ResNet-50: AUC 0.611, gap dark-light -7.19%. Finetuned on dermatology: AUC 0.733 but gap widens to -21.87%, suggesting amplification of imbalance. Photometric augmentation (brightness/contrast/hue) fails to close gap (paired permutation p=0.524 NS). Controlled synthetic augmentation (2x dark melanoma + 2x dark benign, diffusion generator conditioned on Fitzpatrick + diagnosis, train-only) restores overall AUC to 0.774 and reduces gap to -6.56% (delta +4.1% AUC). All images SHA256-hashed, zero cross-split duplicates, stratified 60/20/20 seed 42, bootstrap 1000x 95% BCa CIs. Small n=10 dark melanoma limits power; we report CIs not point estimates. Code MIT, paper CC-BY-4.0.`,
+  abstract: `FairDerm-Audit investigates skin-tone bias in melanoma detection and whether synthetic augmentation can close the gap. This update reflects our clean, leakage-free run. All 290 synthetic dark-skin melanoma images were generated exclusively from the 29 training-split dark melanomas; byte-level SHA256 verification confirms zero overlap with the 132 test images. Results (DDI test, n=132; 42 Light / 48 Medium / 42 Dark, 10 melanomas per reported subgroup): baseline Light AUROC 0.7188 vs. Dark AUROC 0.5875 (gap -0.1313). Fine-tuning changes these to 0.7563 vs. 0.5469 (gap -0.2094). Adding synthetic dark melanomas changes them to 0.7719 vs. 0.4813 (gap -0.2906); the paired Dark AUROC delta is -0.0663 (95% CI [-0.1508, 0.0080], p = 0.9620). Takeaway: simple photometric augmentation cannot meaningfully close the skin-tone gap; the next step is richer generative models, such as GANs or diffusion models. Caveat: the baseline checkpoint is partial (best validation epoch 5); a full 15-epoch run is pending. Bootstrap CIs are wide -- results are directional, not definitive.`,
   methods: [
-    { aspect: "Data", detail: "ISIC 2020 (33k), Fitzpatrick17k (16.5k with Fitzpatrick labels), DDI (656 biopsy-confirmed, diverse)" },
-    { aspect: "Model", detail: "ResNet-50 ImageNet baseline, then full finetune with same hyperparams across regimes" },
-    { aspect: "Leakage check", detail: "SHA256 of decoded pixels, cross-split exact + near-duplicate (pHash <=4) removal, manifest in /hashes" },
-    { aspect: "Split", detail: "Stratified by diagnosis x Fitzpatrick group (I-II / III-IV / V-VI) x source, 60/20/20, seed 42, CSV published" },
-    { aspect: "Threshold", detail: "Youden J on val, applied to test, per-group AUC + TPR@FPR 10%" },
-    { aspect: "Synthetic", detail: "Train-only, 2x dark (V-VI) melanoma + benign, conditioned diffusion, FID 12.3 stratified, no test leakage" },
+    { aspect: "Data", detail: "DDI (Diverse Dermatology Images, Daneshjou et al. 2022, Stanford). 656 biopsy-confirmed images, enriched for dark skin. Test n=132: 42 Light / 48 Medium / 42 Dark, 10 melanomas per reported subgroup." },
+    { aspect: "Model", detail: "ResNet-50 ImageNet baseline, then full fine-tune with the same hyperparameters across regimes." },
+    { aspect: "Leakage check", detail: "SHA256 of decoded pixels, cross-split exact duplicate removal, manifest published. 290 synthetic images verified: zero overlap with the 132 test images." },
+    { aspect: "Split", detail: "Stratified 60/20/20 (393/131/132) by label x skin_tone, seed 42, CSV published." },
+    { aspect: "Threshold", detail: "Youden J on val, applied to test, per-group AUROC reported." },
+    { aspect: "Synthetic", detail: "290 dark-skin melanoma images generated exclusively from the 29 training-split dark melanomas, train-only, no test leakage." },
   ],
   tables: [
-    { id: "T1", title: "Dataset composition", summary: "ISIC 84% light, Fitz 42% dark, DDI 78% dark. Melanoma dark n=10." },
-    { id: "T2", title: "Baseline AUC", summary: "Overall 0.611 [0.58-0.64], dark 0.572, light 0.644, gap -0.0719" },
-    { id: "T3", title: "Finetuned AUC", summary: "Overall 0.733 [0.70-0.76], dark 0.612, light 0.831, gap -0.2187" },
-    { id: "T4", title: "Photometric", summary: "Overall 0.739, gap -0.205, p=0.524 vs finetuned, NS" },
-    { id: "T5", title: "Synthetic 2x", summary: "Overall 0.774 [0.74-0.80], dark 0.738, light 0.804, gap -0.0656" },
-    { id: "T6", title: "Ablation 0-10x", summary: "Peak at 2x, plateau 3-4x, degrade >6x (FID drift)" },
-    { id: "T7", title: "Bootstrap CIs", summary: "1000x BCa, dark melanoma CI width +/-0.11 due to n=10" },
-    { id: "T8", title: "Leakage audit", summary: "0 exact dupes, 12 near-dupes removed (pHash), manifest 16k hashes" },
-    { id: "T9", title: "FID stratified", summary: "FID dark 12.3, light 11.8, dermatologist accuracy 58% (near chance)" },
+    { id: "T1", title: "Dataset composition", summary: "DDI 656 biopsy-confirmed images, intentionally enriched for dark skin. Test n=132: 42 Light / 48 Medium / 42 Dark." },
+    { id: "T2", title: "Baseline AUROC", summary: "Light 0.7188, dark 0.5875, gap -0.1313" },
+    { id: "T3", title: "Fine-tuned AUROC", summary: "Light 0.7563, dark 0.5469, gap -0.2094" },
+    { id: "T4", title: "+ Synthetic dark mel.", summary: "Light 0.7719, dark 0.4813, gap -0.2906, paired dark delta -0.0663" },
+    { id: "T5", title: "Paired dark delta", summary: "-0.0663, 95% CI [-0.1508, 0.0080], p=0.9620, NS" },
+    { id: "T6", title: "Split", summary: "60/20/20 seed 42 -> 393/131/132; test 42 Light / 48 Medium / 42 Dark" },
+    { id: "T7", title: "Synthetic pipeline", summary: "290 images generated exclusively from 29 train-split dark melanomas" },
+    { id: "T8", title: "Leakage audit", summary: "0 exact cross-split dupes; synthetic zero overlap with test (SHA256)" },
+    { id: "T9", title: "Bootstrap", summary: "1000x BCa; CIs wide - results directional, not definitive" },
+    { id: "T10", title: "Caveat", summary: "Baseline checkpoint partial (best val epoch 5); full 15-epoch run pending" },
   ],
   limitations: [
-    "n=10 dark melanoma limits power, CIs wide.",
+    "Baseline checkpoint is partial (best validation epoch 5); a full 15-epoch run is pending.",
+    "Bootstrap CIs are wide -- results are directional, not definitive.",
+    "Small subgroup sizes (10 melanomas per reported subgroup) limit statistical power.",
+    "Photometric augmentation evaluated only; richer generative models (GAN/diffusion) not yet run.",
     "Fitzpatrick labels noisy, observer variance +/-1.",
-    "DDI biopsy-confirmed but small (656).",
-    "Synthetic generator trained on same distribution -- not OOD.",
     "Single architecture (ResNet-50), not ViT.",
-    "No clinical evaluation, only AUC.",
-    "Photometric control limited to Albumentations.",
-    "FID does not capture dermatologic realism.",
+    "No clinical evaluation, only AUROC.",
+    "Synthetic generator trained on the same distribution -- not OOD.",
     "No fairness intersection (age x skin-tone).",
-    "Synthetic may amplify spurious textures.",
-    "Threshold Youden J may not reflect clinical utility.",
-    "$0 budget, no external validation set.",
+    "No external validation set.",
   ],
 } as const;
 
@@ -142,7 +150,7 @@ export const PROTOCOL = {
       title: "Leakage check (SHA256)",
       status: "enforced",
       description:
-        "Every image decoded -> SHA256 of raw pixels. Cross-split exact duplicates removed before any training. pHash <=4 near-dupes flagged and removed. Manifest published in /hashes/manifest_sha256.csv with 16,123 entries.",
+        "Every image decoded -> SHA256 of raw pixels. Cross-split exact duplicates removed before any training. Manifest published with all 656 entries.",
       code: "python scripts/check_leakage.py --data_root ./data --out ./hashes/manifest_sha256.csv",
     },
     {
@@ -150,8 +158,8 @@ export const PROTOCOL = {
       title: "Stratified split (60/20/20, seed 42)",
       status: "published",
       description:
-        "Stratified by diagnosis x Fitzpatrick group (I-II / III-IV / V-VI) x source (ISIC/Fitz/DDI). Fixed seed 42, deterministic. Splits published as CSV, not random on fly.",
-      code: "python fairderm.py split --seed 42 --stratify dx,fitz,source --out splits/",
+        "Stratified by label x skin_tone on DDI, 60/20/20 -> 393/131/132. Fixed seed 42, deterministic. Splits published as CSV, not random on the fly.",
+      code: "python fairderm.py split --seed 42 --stratify label,skin_tone --out splits/",
     },
     {
       id: "hyper",
@@ -174,16 +182,16 @@ export const PROTOCOL = {
       title: "Bootstrap 1000x (95% CI)",
       status: "reported",
       description:
-        "Per-group AUC with bias-corrected accelerated bootstrap (BCa) 1000x. Photometric vs synthetic via paired permutation 1000x. We report p=0.524 NS, not cherry-picked means.",
-      code: "python fairderm.py eval --bootstrap 1000 --ci bca --compare photometric vs synthetic",
+        "Per-group AUROC with bias-corrected accelerated bootstrap (BCa) 1000x. Paired Dark AUROC delta (synthetic vs fine-tuned) via paired permutation: -0.0663, 95% CI [-0.1508, 0.0080], p=0.9620 NS. We report CIs and p-values, not cherry-picked means.",
+      code: "python fairderm.py eval --bootstrap 1000 --ci bca --compare synthetic vs finetuned",
     },
     {
       id: "ablation",
-      title: "Ablation 0-10x synthetic",
+      title: "Synthetic dark melanoma (train-only)",
       status: "swept",
       description:
-        "Synthetic multiplier sweep 0x to 10x dark data. Peak at 2x, plateau 3-4x, degrade >6x due to FID drift. Train-only synthetic, never val/test.",
-      code: "for k in 0 1 2 3 4 6 8 10; do python fairderm.py train --synthetic $k --train_only; done",
+        "290 dark-skin melanoma images generated exclusively from the 29 training-split dark melanomas. Train-only, never val/test. Byte-level SHA256 verification confirms zero overlap with the 132 test images.",
+      code: "python fairderm.py synth --source train_dark_mel 29 --n 290 --train_only",
     },
   ],
   reproducibility: [
@@ -192,7 +200,7 @@ export const PROTOCOL = {
     { key: "Splits CSV", value: "splits/seed42/{train,val,test}.csv published" },
     { key: "Hashes", value: "hashes/manifest_sha256.csv + pHash manifest" },
     { key: "Metrics", value: "metrics_seed42.json with CIs" },
-    { key: "Env", value: "python 3.10, torch 2.2, 1xA100 20 epochs ~1.2h" },
+    { key: "Env", value: "python 3.10, torch 2.2, GPU; deterministic seed-42 only" },
   ],
   whyItMatters:
     "ISIC 2020 has ~2.1% near-duplicates across official splits (pHash). Without SHA256 check, you get +3-5% inflated AUC and think you solved fairness. We didn't. We fixed the evaluation first.",
@@ -225,7 +233,7 @@ export const TEAM = {
     bio: [
       "I'm Shanmuka Gottimukkala, a Junior at Milton High School and founder of FairMed AI, a student-led research platform advancing fairness and open science in medical imaging.",
       "I started coding in 3rd grade after I used inspect element to put my name on my school website and realized systems aren't fixed — they're editable. Since then I've built full-stack MERN apps, a restaurant order tracker with live status, a desktop-style OS interface with draggable windows, an emotion-aware IoT desk assistant with Raspberry Pi and environmental sensors, an ultrasonic laser measurement tool, and a CNN satellite pollution classifier that won 2nd Place in Fulton County Student Technology Competition 2026.",
-      "My flagship work is FairMed AI: a research platform which works to advancing fairness and open science in medical imaging. I worked with Stanford's 656-image Diverse Dermatology Images dataset. I built a reproducible benchmark 393/131/132 with SHA-256 verification and zero leakage, and measured a 0.3281 gap between light skin F1 0.8000 and dark skin F1 0.4719 — a gap that widens after training. Simple color augmentation failed p=0.429, which is why I'm now building bias-aware methods.",
+      "My flagship work is FairMed AI: a research platform which works to advancing fairness and open science in medical imaging. I worked with Stanford's 656-image Diverse Dermatology Images dataset. I built a reproducible benchmark 393/131/132 with SHA-256 verification and zero leakage, and measured a -0.1313 baseline skin-tone gap in AUROC (light 0.7188 vs. dark 0.5875) that widens after training to -0.2094. Adding 290 synthetic dark-skin melanoma images generated from the 29 train-split dark melanomas did not close it (-0.2906, paired dark delta -0.0663, p=0.9620 NS). Simple photometric augmentation cannot close the gap, which is why I'm now building bias-aware generative methods.",
       "I also publish for builders: I created and published an open-source NPM package OneLanggg with 360+ downloads, published 3D models like Doc Ock arms with inverse kinematics with 3.7k+ views and 1000+ downloads on Sketchfab, produced Blender VFX short films, and released a music album across Spotify and YouTube with 400+ streams.",
       "I founded Telugu AI/CS content on Telugu Wikipedia, writing Neural Networks, Deep Learning, and CNN articles from scratch for 100M+ speakers, now linked to 70+ global editions.",
       "I founded Welcome Programming to teach beginners CS with zero experience required, and serve as Secretary of Milton Coders, a nationally recognized Hack Club chapter of 30+ where I led workshops driving 50% growth.",
@@ -270,11 +278,11 @@ export const ABOUT = {
   ],
   timeline: [
     { date: "July 25 2026", event: "WP1 live", detail: "DOI minted, Zenodo record live, GitHub public, 0 leakage" },
-    { date: "July 18 2026", event: "Leakage fix", detail: "Found 12 near-dupes via pHash, removed, re-ran seed 42, metrics stable" },
-    { date: "July 10 2026", event: "Synthetic 2x", detail: "Diffusion conditioned on Fitz+dx, train-only, gap closes -21.87% to -6.56%" },
-    { date: "June 28 2026", event: "Photometric fails", detail: "p=0.524 NS, brightness/contrast does not fix melanin bias" },
-    { date: "June 15 2026", event: "Gap found", detail: "Finetuned 0.733 but gap widens -7.19% to -21.87%, core finding" },
-    { date: "May 2026", event: "Lab start", detail: "M1 Air, ISIC + Fitz + DDI, question: can we audit openly?" },
+    { date: "July 18 2026", event: "Leakage check", detail: "SHA256 manifest finalized, zero cross-split duplicates, metrics stable" },
+    { date: "July 10 2026", event: "Synthetic dark mel.", detail: "290 dark-skin melanomas generated from 29 train-split dark melanomas, train-only, zero overlap with test" },
+    { date: "June 28 2026", event: "Photometric fails", detail: "Simple augmentation does not close the skin-tone gap; next step is richer generative models (GANs/diffusion)" },
+    { date: "June 15 2026", event: "Gap found", detail: "Baseline skin-tone gap -0.1313; fine-tuning widens it to -0.2094, core finding" },
+    { date: "May 2026", event: "Lab start", detail: "M1 Air, DDI, question: can we audit openly?" },
   ],
   license:
     "Code: MIT · Paper: CC-BY-4.0 · Data: per-source (ISIC CC-BY-NC, Fitz CC-BY, DDI CC-BY)",
@@ -339,7 +347,7 @@ export const AUDITS = {
       title: "DDI Audit",
       status: "live" as const,
       description:
-        "Diverse Dermatology Images (Daneshjou et al. 2022, Stanford). 656 biopsy-confirmed images, 0 leakage verified via SHA256, 60/20/20 stratified split. Core finding: finetuning widens skin-tone gap from 0.05 to 0.33.",
+        "Diverse Dermatology Images (Daneshjou et al. 2022, Stanford). 656 biopsy-confirmed images, 0 leakage verified via SHA256, 60/20/20 stratified split. Core finding: the skin-tone gap widens from -0.1313 (baseline) to -0.2094 (fine-tuned); 290 synthetic dark-skin melanomas (from 29 train-split dark melanomas) do not close it (-0.2906, paired dark delta -0.0663, p=0.9620 NS).",
       tags: ["Dermatology", "656 images", "Zero leakage", "Seed 42"],
       href: "/audit/ddi",
     },

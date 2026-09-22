@@ -37,7 +37,8 @@ export default function PapersPage() {
           <thead>
             <tr className="border-theme" style={{ borderBottom: "1px solid" }}>
               <th className="text-left py-2 font-normal text-muted">Method</th>
-              <th className="text-left py-2 font-normal text-muted">AUC</th>
+              <th className="text-left py-2 font-normal text-muted">Light AUROC</th>
+              <th className="text-left py-2 font-normal text-muted">Dark AUROC</th>
               <th className="text-left py-2 font-normal text-muted">Gap</th>
               <th className="text-left py-2 font-normal text-muted">Delta</th>
             </tr>
@@ -46,7 +47,8 @@ export default function PapersPage() {
             {PAPERS.wp1.results.map((row, i) => (
               <tr key={i} className="border-theme" style={{ borderBottom: "1px solid" }}>
                 <td className="py-2">{row.method}</td>
-                <td className="py-2">{row.auc}</td>
+                <td className="py-2">{row.light}</td>
+                <td className="py-2">{row.dark}</td>
                 <td className="py-2">{row.gap}</td>
                 <td className="py-2">{row.delta}</td>
               </tr>

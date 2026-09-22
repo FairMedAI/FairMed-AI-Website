@@ -224,8 +224,9 @@ export default function MethodsPage() {
         </table>
 
         <p className="text-[14px] text-muted mb-4">
-          Test subgroups: 42 light (10 melanoma), 42 dark (10 melanoma).
-          Train dark melanoma: 29 (source for synthetic augmentation).
+          Test set (n=132): 42 Light / 48 Medium / 42 Dark, 10 melanomas per
+          reported subgroup. Train dark melanoma: 29 — source pool for the 290
+          synthetic dark-skin melanoma images (train-only).
         </p>
 
         <h3 className="text-[14px] font-semibold mb-2">Why Seed 42</h3>
@@ -357,33 +358,38 @@ export default function MethodsPage() {
         </pre>
 
         <h3 className="text-[14px] font-semibold mb-3">
-          Real DDI Result — Finetuned ResNet-50
+          Real DDI Result — + Synthetic Dark Melanoma (test n=132)
         </h3>
 
         {/* Gap headline */}
         <div className="border border-theme rounded-lg p-5 mb-4">
           <div className="grid grid-cols-2 gap-6 mb-4">
             <div className="text-center">
-              <p className="text-[32px] font-semibold">0.80</p>
+              <p className="text-[32px] font-semibold">0.77</p>
               <p className="text-[12px] font-mono text-muted">Light AUROC</p>
-              <p className="text-[11px] font-mono text-muted">95% CI [0.63, 0.94]</p>
+              <p className="text-[11px] font-mono text-muted">exact: 0.7719</p>
             </div>
             <div className="text-center">
-              <p className="text-[32px] font-semibold">0.47</p>
+              <p className="text-[32px] font-semibold">0.48</p>
               <p className="text-[12px] font-mono text-muted">Dark AUROC</p>
-              <p className="text-[11px] font-mono text-muted">95% CI [0.26, 0.70]</p>
+              <p className="text-[11px] font-mono text-muted">exact: 0.4813</p>
             </div>
           </div>
           <div className="text-center border-t border-theme pt-4">
-            <p className="text-[14px] text-muted mb-1">Fairness Gap (Dark − Light)</p>
+            <p className="text-[14px] text-muted mb-1">Fairness Gap (Light − Dark)</p>
             <p className="text-[28px] font-semibold text-red-600 dark:text-red-400">
-              0.33
+              -0.29
             </p>
             <p className="text-[12px] font-mono text-muted">
-              exact: 0.3281 · model performs 33% worse on dark skin
+              exact: -0.2906 · model performs far worse on dark skin
             </p>
           </div>
         </div>
+
+        <p className="text-[13px] text-muted mb-4">
+          Paired Dark AUROC delta (synthetic vs fine-tuned): -0.0663, 95% CI
+          [-0.1508, 0.0080], p = 0.9620 NS
+        </p>
 
         <h3 className="text-[14px] font-semibold mb-3">Full Stage Comparison</h3>
         <table
@@ -401,32 +407,48 @@ export default function MethodsPage() {
           <tbody>
             <tr className="border-theme" style={{ borderBottom: "1px solid" }}>
               <td className="py-2">Baseline</td>
-              <td className="py-2">0.6281</td>
-              <td className="py-2">0.5781</td>
-              <td className="py-2">0.0500</td>
+              <td className="py-2">0.7188</td>
+              <td className="py-2">0.5875</td>
+              <td className="py-2">-0.1313</td>
             </tr>
             <tr className="border-theme" style={{ borderBottom: "1px solid" }}>
-              <td className="py-2">Finetuned</td>
-              <td className="py-2">0.8000</td>
-              <td className="py-2">0.4719</td>
+              <td className="py-2">Fine-tuned</td>
+              <td className="py-2">0.7563</td>
+              <td className="py-2">0.5469</td>
               <td className="py-2 text-red-600 dark:text-red-400 font-medium">
-                0.3281
+                -0.2094
               </td>
             </tr>
             <tr className="border-theme" style={{ borderBottom: "1px solid" }}>
-              <td className="py-2">+ Synthetic 2×</td>
-              <td className="py-2">0.7656</td>
-              <td className="py-2">0.4625</td>
-              <td className="py-2">0.3031</td>
+              <td className="py-2">+ Synthetic dark mel.</td>
+              <td className="py-2">0.7719</td>
+              <td className="py-2">0.4813</td>
+              <td className="py-2 text-red-600 dark:text-red-400 font-medium">
+                -0.2906
+              </td>
             </tr>
           </tbody>
         </table>
 
         <p className="text-[14px] text-muted mb-4">
-          Finetuning boosts overall AUROC from 0.64 to 0.67, but the dark–light gap
-          widens from 0.05 to 0.33 — amplifying the imbalance. The gap does not
-          close with finetuning alone.
+          Across stages, light AUROC rises 0.7188 → 0.7563 → 0.7719 while dark AUROC
+          falls 0.5875 → 0.5469 → 0.4813. Fine-tuning amplifies the imbalance rather
+          than closing it, and adding 290 synthetic dark-skin melanomas (generated
+          exclusively from the 29 train-split dark melanomas, zero overlap verified
+          via SHA256) does not close the gap.
         </p>
+
+        <div
+          className="border rounded-lg p-4 text-[13px] leading-relaxed text-muted mb-4"
+          style={{ borderColor: "rgba(245, 158, 11, 0.5)" }}
+        >
+          <span className="block font-medium mb-1" style={{ color: "#f59e0b" }}>
+            Caveat
+          </span>
+          Baseline checkpoint is partial (best validation epoch 5); a full 15-epoch
+          run is pending. Bootstrap CIs are wide — results are directional, not
+          definitive.
+        </div>
 
         <h3 className="text-[14px] font-semibold mb-2">Input Format</h3>
         <pre

@@ -25,6 +25,31 @@ export default function HomePage() {
         {HOME.finding}
       </p>
 
+      <div
+        className="border rounded-lg p-5 mb-8"
+        style={{ borderColor: "rgba(245, 158, 11, 0.5)" }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-amber-600 dark:text-amber-400 bg-amber-600/10">
+            FairDerm Update
+          </span>
+          <span className="text-[12px] font-mono text-muted">clean, leakage-free run</span>
+        </div>
+        <p className="text-[14px] leading-[1.8] text-muted mb-3">
+          All 290 synthetic dark-skin melanoma images were generated exclusively
+          from the 29 training-split dark melanomas — byte-level SHA256 verification
+          confirms zero overlap with the 132 test images. Results are directional,
+          not definitive: the baseline checkpoint is partial (best validation epoch
+          5); a full 15-epoch run is pending.
+        </p>
+        <Link
+          href="/papers/fairderm-audit"
+          className="link-accent text-[14px] font-medium inline-flex items-center gap-1"
+        >
+          Full update <span className="ml-0.5">→</span>
+        </Link>
+      </div>
+
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px]">
         <Link href={HOME.paperLink} className="link-accent font-medium">
           Read the paper <span className="ml-1">&rarr;</span>

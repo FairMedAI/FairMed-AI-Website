@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowDown, ArrowUpRight } from "lucide-react";
-import { SITE } from "@/lib/data";
 
 const VERIFY_CODE = `import json
 
@@ -148,8 +147,8 @@ export default function DDIAuditPage() {
         </table>
 
         <p className="text-[14px] text-muted">
-          Stratified by skin_tone × malignant, seed 42. Train dark melanoma: 29
-          (source for synthetic augmentation).
+          Stratified by skin_tone × malignant, seed 42, 60/20/20 → 393/131/132. Train dark melanoma: 29 — the
+          source pool for the 290 synthetic dark-skin melanoma images (train-only).
         </p>
       </section>
 
@@ -163,23 +162,23 @@ export default function DDIAuditPage() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-[24px] font-semibold">~60%</p>
-              <p className="text-[12px] font-mono text-muted">Dark (V–VI)</p>
+              <p className="text-[12px] font-mono text-muted">Whole DDI · Dark (V–VI)</p>
             </div>
             <div>
               <p className="text-[24px] font-semibold">~25%</p>
-              <p className="text-[12px] font-mono text-muted">Medium (III–IV)</p>
+              <p className="text-[12px] font-mono text-muted">Whole DDI · Medium (III–IV)</p>
             </div>
             <div>
               <p className="text-[24px] font-semibold">~15%</p>
-              <p className="text-[12px] font-mono text-muted">Light (I–II)</p>
+              <p className="text-[12px] font-mono text-muted">Whole DDI · Light (I–II)</p>
             </div>
           </div>
         </div>
 
         <p className="text-[14px] text-muted">
           DDI is intentionally enriched for dark skin tones — the inverse of
-          typical dermatology datasets. Test set balanced: 42 light / 42 dark (10
-          melanoma each) for fair evaluation.
+          typical dermatology datasets. Test set (n=132): 42 Light / 48 Medium /
+          42 Dark, 10 melanomas per reported subgroup.
         </p>
       </section>
 
@@ -205,46 +204,92 @@ export default function DDIAuditPage() {
           </thead>
           <tbody>
             <tr className="border-theme" style={{ borderBottom: "1px solid" }}>
-              <td className="py-2">Finetuned</td>
-              <td className="py-2">0.8000</td>
-              <td className="py-2">0.4719</td>
-              <td className="py-2 text-red-600 dark:text-red-400 font-medium">
-                0.3281
-              </td>
+              <td className="py-2">Baseline</td>
+              <td className="py-2">0.7188</td>
+              <td className="py-2">0.5875</td>
+              <td className="py-2 font-medium">-0.1313</td>
             </tr>
             <tr className="border-theme" style={{ borderBottom: "1px solid" }}>
-              <td className="py-2">Baseline</td>
-              <td className="py-2">0.6281</td>
-              <td className="py-2">0.5781</td>
-              <td className="py-2">0.0500</td>
+              <td className="py-2">Fine-tuned</td>
+              <td className="py-2">0.7563</td>
+              <td className="py-2">0.5469</td>
+              <td className="py-2 text-red-600 dark:text-red-400 font-medium">-0.2094</td>
+            </tr>
+            <tr className="border-theme" style={{ borderBottom: "1px solid" }}>
+              <td className="py-2">+ Synthetic dark mel.</td>
+              <td className="py-2">0.7719</td>
+              <td className="py-2">0.4813</td>
+              <td className="py-2 text-red-600 dark:text-red-400 font-medium">-0.2906</td>
             </tr>
           </tbody>
         </table>
 
         <p className="text-[13px] text-muted mb-4">
-          Bootstrap CI (1000× BCa): Light AUROC [0.63, 0.94] · Dark AUROC [0.26,
-          0.70]
+          Paired Dark AUROC delta (synthetic vs fine-tuned): -0.0663, 95% CI
+          [-0.1508, 0.0080], p = 0.9620
         </p>
 
         {/* Gap headline */}
         <div className="border border-theme rounded-lg p-5 mb-4">
           <div className="text-center">
             <p className="text-[14px] text-muted mb-1">
-              Finetuned Fairness Gap (Light − Dark)
+              Synthetic-stage Fairness Gap (Light − Dark)
             </p>
             <p className="text-[28px] font-semibold text-red-600 dark:text-red-400">
-              0.33
+              -0.29
             </p>
             <p className="text-[12px] font-mono text-muted">
-              exact: 0.3281 · gap persists after finetuning — dark skin performance drops
+              exact: -0.2906 · gap persists after fine-tuning and synthetic augmentation — dark skin performance drops
             </p>
           </div>
         </div>
 
         <p className="text-[14px] text-muted">
-          Finetuning boosts light AUROC from 0.63 to 0.80 but drops dark AUROC
-          from 0.58 to 0.47. The gap widens from 0.05 to 0.33 — amplifying the
-          imbalance rather than closing it.
+          Across stages, light AUROC rises 0.7188 → 0.7563 → 0.7719 while dark AUROC
+          falls 0.5875 → 0.5469 → 0.4813. Fine-tuning amplifies the imbalance rather
+          than closing it, and adding 290 synthetic dark-skin melanomas does not
+          close the gap (paired dark AUROC delta -0.0663, p=0.9620 NS).
+        </p>
+      </section>
+
+      {/* ── 5b. Synthetic Pipeline ───────────────────────── */}
+      <section className="mb-12">
+        <h2 className="text-[12px] font-mono tracking-widest uppercase mb-4 text-muted">
+          Synthetic Pipeline
+        </h2>
+
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-green-600 dark:text-green-400 bg-green-600/10">
+            Leakage-proof — SHA256 verified
+          </span>
+        </div>
+
+        <p className="text-[14px] leading-[1.8] text-muted mb-4">
+          All 290 synthetic dark-skin melanoma images were generated exclusively
+          from the 29 training-split dark melanomas. Train-only, never val/test.
+          Byte-level SHA256 verification confirms zero overlap with the 132 test
+          images.
+        </p>
+
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="border border-theme rounded-lg p-4">
+            <p className="text-[24px] font-semibold">290</p>
+            <p className="text-[11px] font-mono text-muted uppercase">Synthetic dark melanoma</p>
+          </div>
+          <div className="border border-theme rounded-lg p-4">
+            <p className="text-[24px] font-semibold">29</p>
+            <p className="text-[11px] font-mono text-muted uppercase">Train-split source images</p>
+          </div>
+          <div className="border border-theme rounded-lg p-4">
+            <p className="text-[24px] font-semibold text-green-600 dark:text-green-400">0</p>
+            <p className="text-[11px] font-mono text-muted uppercase">Test overlap (SHA256)</p>
+          </div>
+        </div>
+
+        <p className="text-[14px] text-muted mt-4">
+          Takeaway: simple photometric augmentation cannot meaningfully close the
+          skin-tone gap. The next step is richer generative models, such as GANs or
+          diffusion models.
         </p>
       </section>
 
@@ -305,19 +350,39 @@ export default function DDIAuditPage() {
         </p>
       </section>
 
-      {/* ── 8. Limitations ──────────────────────────────── */}
+      {/* ── 8. Caveat ───────────────────────────────────── */}
+      <section className="mb-12">
+        <h2 className="text-[12px] font-mono tracking-widest uppercase mb-4 text-muted">
+          Caveat
+        </h2>
+        <div
+          className="border rounded-lg p-5 text-[14px] leading-[1.8] text-muted"
+          style={{ borderColor: "rgba(245, 158, 11, 0.5)" }}
+        >
+          <span className="block font-medium mb-1" style={{ color: "#f59e0b" }}>
+            Caveat
+          </span>
+          The baseline checkpoint is partial (best validation epoch 5); a full
+          15-epoch run is pending. Bootstrap CIs are wide — results are directional,
+          not definitive.
+        </div>
+      </section>
+
+      {/* ── 9. Limitations ──────────────────────────────── */}
       <section className="mb-12">
         <h2 className="text-[12px] font-mono tracking-widest uppercase mb-4 text-muted">
           Limitations
         </h2>
         <p className="text-[15px] leading-[1.8]">
-          Not clinical. Checks file hashes only. Gap metrics from single seed.
+          Not clinical. Checks file hashes only. Small subgroup sizes (10 melanomas
+          per reported subgroup) and a partial baseline checkpoint mean results are
+          directional, not definitive.
         </p>
       </section>
 
       <hr className="my-10 border-theme" />
 
-      {/* ── 9. Footer ────────────────────────────────────── */}
+      {/* ── 10. Footer ───────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-[12px] font-mono text-muted">
         <span>Audited with FairMed Scanner v1 · 656 images · July 2026 · DOI: Zenodo pending</span>
       </div>

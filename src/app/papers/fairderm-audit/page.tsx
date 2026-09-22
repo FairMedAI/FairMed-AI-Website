@@ -38,6 +38,60 @@ export default function WP1DetailPage() {
         {WP1_DETAIL.abstract.split(".")[0]}.
       </h1>
 
+      {/* Update */}
+      <section className="mb-10">
+        <div
+          className="border rounded-lg p-5"
+          style={{ borderColor: "rgba(245, 158, 11, 0.5)" }}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-amber-600 dark:text-amber-400 bg-amber-600/10">
+              Update · July 2026
+            </span>
+            <span className="text-[12px] font-mono text-muted">Clean, leakage-free run</span>
+          </div>
+          <p className="text-[14px] leading-[1.8] mb-4">
+            FairDerm investigates skin-tone bias in melanoma detection and whether
+            synthetic augmentation can close the gap. This update reflects our
+            clean, leakage-free run.
+          </p>
+          <p className="text-[14px] leading-[1.8] mb-4">
+            <strong>Leakage-proof pipeline.</strong> All 290 synthetic dark-skin
+            melanoma images were generated exclusively from the 29 training-split
+            dark melanomas. Byte-level SHA256 verification confirms zero overlap
+            with the 132 test images.
+          </p>
+          <p className="text-[14px] leading-[1.8] mb-4">
+            <strong>Results</strong> (DDI test, n=132; 42 Light / 48 Medium / 42
+            Dark, 10 melanomas per reported subgroup). The baseline achieves Light
+            AUROC 0.7188 vs. Dark AUROC 0.5875 (gap −0.1313). Fine-tuning changes
+            these to 0.7563 vs. 0.5469 (gap −0.2094). Adding synthetic dark
+            melanomas changes them to 0.7719 vs. 0.4813 (gap −0.2906); the paired
+            Dark AUROC delta is −0.0663 (95% CI [−0.1508, 0.0080], p = 0.9620).
+          </p>
+          <p className="text-[14px] leading-[1.8] mb-0">
+            <strong>Takeaway.</strong> Simple photometric augmentation cannot
+            meaningfully close the skin-tone gap. The next step is richer
+            generative models, such as GANs or diffusion models.
+          </p>
+        </div>
+      </section>
+
+      {/* Caveat */}
+      <section className="mb-10">
+        <div
+          className="border rounded-lg p-5 text-[14px] leading-[1.8] text-muted"
+          style={{ borderColor: "rgba(245, 158, 11, 0.5)" }}
+        >
+          <span className="block font-medium mb-1" style={{ color: "#f59e0b" }}>
+            Caveat
+          </span>
+          The baseline checkpoint is partial (best validation epoch 5); a full
+          15-epoch run is pending. Bootstrap CIs are wide — results are
+          directional, not definitive.
+        </div>
+      </section>
+
       {/* Abstract */}
       <section className="mb-10">
         <h2 className="text-[12px] font-mono tracking-widest uppercase mb-3 text-muted">
