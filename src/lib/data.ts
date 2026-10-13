@@ -2,15 +2,15 @@ export const SITE = {
   title: "FairMed AI",
   tagline: "Research Lab · est. 2026",
   copyright: "FairMed AI (c) 2026",
-  doi: "10.5281/zenodo.21543770",
-  doiUrl: "https://doi.org/10.5281/zenodo.21543770",
-  zenodoUrl: "https://zenodo.org/records/21543770",
+  doi: "10.5281/zenodo.23330297",
+  doiUrl: "https://doi.org/10.5281/zenodo.23330297",
+  zenodoUrl: "https://zenodo.org/records/23330297",
   githubUrl: "https://github.com/FairMedAI",
   linkedinUrl: "https://www.linkedin.com/company/fairmedai",
   zenodoCommunityUrl: "https://zenodo.org/communities/fairmedai",
   personalGithubUrl: "https://github.com/ShanmukaGottimukkala",
   personalLinkedinUrl: "https://www.linkedin.com/in/shanmuka-gottimukkala/",
-  licenseCode: "MIT",
+  licenseCode: "Apache-2.0",
   licensePaper: "CC-BY-4.0",
 } as const;
 
@@ -32,9 +32,10 @@ export const BIBTEX = `@misc{fairmed2026fairderm,
   author       = {FairMed AI},
   year         = {2026},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.21543770},
-  url          = {https://doi.org/10.5281/zenodo.21543770},
-  howpublished = {\\url{https://zenodo.org/records/21543770}}
+  note         = {Rev 2, 2026-10-12, 5-seed primary, no external validation, negative result},
+  doi          = {10.5281/zenodo.23330297},
+  url          = {https://doi.org/10.5281/zenodo.23330297},
+  howpublished = {\\url{https://zenodo.org/records/23330297}}
 }`;
 
 export const METRICS_JSON = {
@@ -64,7 +65,7 @@ export const HOME = {
   subtitle: "Leakage-aware, stratified evaluation of medical imaging AI. Starting with dermatology.",
   intro: "Medical imaging AI models degrade across subgroups. Most evaluations hide this by conflating algorithmic bias with dataset leakage. We audit openly: every image SHA256-hashed, every split published [60/20/20 seed 42], every metric reported with subgroup breakdowns. Starting with dermatology [skin-tone], expanding to radiology, ophthalmology, pathology.",
   finding:
-    "On the DDI test set (n=132; 42 Light / 48 Medium / 42 Dark, 10 melanomas per reported subgroup), the baseline ResNet-50 achieves Light AUROC 0.7188 vs. Dark AUROC 0.5875 (gap -0.1313). Fine-tuning changes these to 0.7563 vs. 0.5469 (gap -0.2094). Adding synthetic dark melanomas changes them to 0.7719 vs. 0.4813 (gap -0.2906); the paired Dark AUROC delta is -0.0663 (95% CI [-0.1508, 0.0080], p = 0.9620). Simple photometric augmentation cannot meaningfully close the skin-tone gap. The next step is richer generative models, such as GANs or diffusion models.",
+    "DDI (656, 393/131/132, test 42 Light/10 mel, 48 Medium/8 mel, 42 Dark/10 mel) low power Dark n=10 SD~0.15 fragile. EfficientNet-B0 HAM10000 7,818 mel/nv. 290 synthetics train-only from 29 dark mel x10 photometric median sim 0.9985 no GAN/diffusion no FID no clinician. Confound 29->290 static pos_weight 2.8529 changes ratio 102/291->392/291 balanced 0.7423 ~3.8x over-weight. Arms static 0.484 matches 0.481, recomputed 0.7423->0.478, balanced 101 dark benign + w1.0->0.550 gap -0.222->-0.141. Primary 5-seed (42-46): Dark 0.575±0.145->0.604±0.152 delta +0.028 [-0.001,0.057] NS gap -0.081->-0.083 unchanged. Seed-42 ref: baseline 0.6622 Light 0.7188 Dark 0.5875 gap -0.1313 -> fine-tuned 0.6336 Light 0.7563 Dark 0.5469 gap -0.2094 -> synthetic 0.6395 Light 0.7719 Dark 0.4813 gap -0.2906 delta -0.0663 [-0.1508,0.0080] p=0.962 NS. Thresholds different Youden-J not comparable AUROC primary. No external validation DDI only. Negative result.",
   paperLink: "/papers/fairderm-audit",
   paperTitle: "FairDerm-Audit: Leakage-Aware Evaluation of Synthetic Augmentation for Skin-Tone Fairness",
 } as const;
@@ -84,7 +85,7 @@ export const WP1_BADGE = {
 export const PAPERS = {
   wp1: {
     status: "Live",
-    date: "July 25 2026",
+    date: "Oct 12 2026",
     title: "FairDerm-Audit: Leakage-Aware Evaluation of Synthetic Augmentation for Skin-Tone Fairness",
     summary:
       "We audit three training regimes on DDI (Diverse Dermatology Images, n=656; test n=132, 42 Light / 48 Medium / 42 Dark, 10 melanomas per reported subgroup). Baseline Light AUROC 0.7188 vs. Dark 0.5875 (gap -0.1313). Fine-tuning changes these to 0.7563 vs. 0.5469 (gap -0.2094). Adding 290 synthetic dark-skin melanoma images generated from the 29 train-split dark melanomas (zero overlap verified via SHA256) changes them to 0.7719 vs. 0.4813 (gap -0.2906); the paired Dark AUROC delta is -0.0663 (95% CI [-0.1508, 0.0080], p = 0.9620).",
@@ -127,18 +128,47 @@ export const WP1_DETAIL = {
     { id: "T10", title: "Caveat", summary: "Baseline checkpoint partial (best val epoch 5); full 15-epoch run pending" },
   ],
   limitations: [
-    "Baseline checkpoint is partial (best validation epoch 5); a full 15-epoch run is pending.",
-    "Bootstrap CIs are wide -- results are directional, not definitive.",
-    "Small subgroup sizes (10 melanomas per reported subgroup) limit statistical power.",
-    "Photometric augmentation evaluated only; richer generative models (GAN/diffusion) not yet run.",
-    "Fitzpatrick labels noisy, observer variance +/-1.",
-    "Single architecture (ResNet-50), not ViT.",
-    "No clinical evaluation, only AUROC.",
-    "Synthetic generator trained on the same distribution -- not OOD.",
-    "No fairness intersection (age x skin-tone).",
-    "No external validation set.",
+    {
+      severity: "High",
+      title: "Low statistical power",
+      detail: "Dark arm is small (n=42, 10 melanomas; per-seed SD ~0.15, CI width ~0.40), making single-seed AUROC fragile; multi-seed evaluation is required.",
+    },
+    {
+      severity: "High",
+      title: "No external validation",
+      detail: "DDI only (n=656); no Fitzpatrick17k, no HAM test fold, no clinical cohort.",
+    },
+    {
+      severity: "High",
+      title: "Composition confound",
+      detail: "Replicating 29→290 dark melanomas plus static positive weight 2.8529 shifts the train ratio 102/291→392/291 (~3.8× overweighting, balanced 0.7423→ ratio). Arms: static 0.484 matches 0.481, recomputed 0.7423→0.478, balanced (101 dark benign, w=1.0)→0.550; gap -0.222→-0.141.",
+    },
+    {
+      severity: "High",
+      title: "Limited synthetic diversity",
+      detail: "290 images are photometric transforms of 29 lesions with median similarity 0.9985 — no GAN/diffusion, no FID, no clinician review.",
+    },
+    {
+      severity: "Medium",
+      title: "Threshold comparability",
+      detail: "Youden-J is re-derived per stage, so sensitivity thresholds differ and per-stage thresholds are not comparable; per-group AUROC is the primary metric and this is a negative result.",
+    },
+    {
+      severity: "Medium",
+      title: "Single-draw seed 42",
+      detail: "Primary is a 5-seed (42–46) average; seed 42 is one draw (delta +0.028 [-0.001, 0.057] NS, gap -0.081→-0.083 unchanged).",
+    },
   ],
 } as const;
+
+export const WP1_FINDINGS = [
+  { title: "Low-Power Test", detail: "Dark 42/10 mel · SD~0.15 · CI width ~0.40 · fragile — multi-seed required" },
+  { title: "No External Validation", detail: "DDI only 656 · no Fitzpatrick17k / HAM test / clinical" },
+  { title: "Composition Confound", detail: "29→290 + pos_weight 2.8529 ⇒ 392/291 · ~3.8× over-weight · balanced 0.550" },
+  { title: "Limited Diversity", detail: "290 = transforms of 29 lesions · median sim 0.9985 · no FID · no clinician · no diffusion" },
+  { title: "Multi-Seed Primary", detail: "+0.028 [-0.001, 0.057] NS · gap unchanged · seed-42 one draw" },
+  { title: "Threshold Note", detail: "Youden-J per stage differs · sensitivity not comparable · AUROC primary · negative result" },
+] as const;
 
 export const PROTOCOL = {
   heading: "The checklist that prevents the quiet scandal.",
@@ -266,18 +296,19 @@ export const ABOUT = {
       "I started programming in 3rd grade after changing my school website with inspect element. What began as curiosity about editable systems became a focus on how computational systems fail real people.",
       "I built FairMed AI after watching a dermatology AI demo degrade on dark skin. The question wasn't just about bias — it was about evaluation. Most papers leak near-duplicates across splits and report only overall AUC. We don't.",
       "I'm a published first-author in NSRI Journal (Distinguished Article) and USACO Gold competitor. I publish open-source — OneLanggg NPM (360+ downloads) — and open-knowledge — founding author of 3 AI articles on Telugu Wikipedia for 100M+ speakers, 7+ years Python/JS, full-stack MERN, TensorFlow.",
-      "FairMed AI runs on one principle: if you can't hash it, split it, and report the gap, it doesn't count. Code MIT, paper CC-BY-4.0, every image SHA256-hashed, seed 42.",
+      "FairMed AI runs on one principle: if you can't hash it, split it, and report the gap, it doesn't count. Code Apache-2.0, paper CC-BY-4.0, every image SHA256-hashed, seed 42.",
     ],
   },
   mission:
     "Make medical AI bias auditable by anyone. Not just publishable by elite labs. Every paper must ship with hashes, splits, and per-skin-tone metrics, or it doesn't count.",
   values: [
-    { title: "Open", description: "Code MIT, Paper CC-BY-4.0, Data open" },
+    { title: "Open", description: "Code Apache-2.0, Paper CC-BY-4.0, Data open" },
     { title: "Verifiable", description: "SHA256, seed 42, bootstrap CIs" },
     { title: "Honest", description: "Report gap, not hide it" },
   ],
   timeline: [
-    { date: "July 25 2026", event: "WP1 live", detail: "DOI minted, Zenodo record live, GitHub public, 0 leakage" },
+    { date: "Oct 12 2026", event: "Rev 2", detail: "5-seed primary (42-46), sliced balanced arms, Zenodo DOI 10.5281/zenodo.23330297, 6 reviewer fixes, negative result" },
+    { date: "September 22 2026", event: "WP1 live", detail: "Update published September 22 2026" },
     { date: "July 18 2026", event: "Leakage check", detail: "SHA256 manifest finalized, zero cross-split duplicates, metrics stable" },
     { date: "July 10 2026", event: "Synthetic dark mel.", detail: "290 dark-skin melanomas generated from 29 train-split dark melanomas, train-only, zero overlap with test" },
     { date: "June 28 2026", event: "Photometric fails", detail: "Simple augmentation does not close the skin-tone gap; next step is richer generative models (GANs/diffusion)" },
@@ -285,7 +316,7 @@ export const ABOUT = {
     { date: "May 2026", event: "Lab start", detail: "M1 Air, DDI, question: can we audit openly?" },
   ],
   license:
-    "Code: MIT · Paper: CC-BY-4.0 · Data: per-source (ISIC CC-BY-NC, Fitz CC-BY, DDI CC-BY)",
+    "Code: Apache-2.0 · Paper: CC-BY-4.0 · Data: per-source (ISIC CC-BY-NC, Fitz CC-BY, DDI CC-BY)",
   contact: {
     github: "@FairMedAI",
     zenodo: "fairmedai community",
