@@ -542,8 +542,8 @@ export default function MethodsPage() {
             Zenodo DOI
           </span>
           <span className="text-[14px] text-muted">
-            DOI coming — Zenodo upload pending. Full dataset, splits, hashes, and
-            metrics will be archived with a citable DOI.
+            Revised Oct 12 2026 - Rev 2. Archived on Zenodo with citable DOI {" "}
+            {SITE.doiUrl}.
           </span>
         </div>
       </section>
@@ -612,7 +612,7 @@ export default function MethodsPage() {
 
       {/* Footer */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 text-[12px] font-mono text-muted">
-        <span>Last audited: July 2026 | Scanner v1</span>
+        <span>Last audited: Oct 12 2026 · Rev 2 | Scanner v1</span>
         <span className="flex items-center gap-2">
           <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" className="link-accent">
             Source code

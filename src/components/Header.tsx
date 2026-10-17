@@ -31,6 +31,13 @@ export function Header() {
           <img src="/images/fairmed_FM_clean.png" alt="" className="logo-dark h-[24px] w-auto" />
           <span className="text-[14px] font-semibold tracking-tight">{SITE.title}</span>
         </Link>
+        <a href={SITE.doiUrl} target="_blank" rel="noopener noreferrer" aria-label="FairDerm Concept DOI">
+          <img
+            src="https://zenodo.org/badge/DOI/10.5281/zenodo.21543769.svg"
+            alt="DOI"
+            className="h-[20px] w-auto"
+          />
+        </a>
 
         <nav className="hidden md:flex items-center gap-5">
           {NAV.map((item) => (

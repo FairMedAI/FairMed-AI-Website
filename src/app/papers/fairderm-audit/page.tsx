@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { WP1_DETAIL, WP1_BADGE, SITE, BIBTEX, METRICS_JSON } from "@/lib/data";
+import { WP1_DETAIL, WP1_BADGE, WP1_FINDINGS, SITE, BIBTEX, METRICS_JSON } from "@/lib/data";
 import { CopyButton } from "@/components/CopyButton";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
@@ -19,6 +19,9 @@ export default function WP1DetailPage() {
         <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-green-600 dark:text-green-400 bg-green-600/10">
           {WP1_BADGE.label}
         </span>
+        <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-amber-600 dark:text-amber-400 bg-amber-600/10">
+          Rev 2 - Oct 12 2026 - 5-Seed Primary - DOI {SITE.doi}
+        </span>
       </div>
       <p className="text-[12px] text-muted mb-6">
         {WP1_BADGE.note}
@@ -27,7 +30,7 @@ export default function WP1DetailPage() {
       <div className="flex items-center gap-3 mb-4 text-[12px] font-mono text-muted">
         <span>WP1</span>
         <span>·</span>
-        <span>September 22 2026</span>
+        <span>Rev 2 · Oct 12 2026</span>
         <span>·</span>
         <a href={SITE.doiUrl} target="_blank" rel="noopener noreferrer" className="link-accent">
           DOI {SITE.doi}
@@ -46,7 +49,7 @@ export default function WP1DetailPage() {
         >
           <div className="flex items-center gap-3 mb-3">
             <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-amber-600 dark:text-amber-400 bg-amber-600/10">
-              Update · September 2026
+              Update · Rev 2 · Oct 12 2026
             </span>
             <span className="text-[12px] font-mono text-muted">Clean, leakage-free run</span>
           </div>
@@ -74,6 +77,24 @@ export default function WP1DetailPage() {
             meaningfully close the skin-tone gap. The next step is richer
             generative models, such as GANs or diffusion models.
           </p>
+        </div>
+      </section>
+
+      {/* Key Findings */}
+      <section className="mb-10">
+        <h2 className="text-[12px] font-mono tracking-widest uppercase mb-4 text-muted">
+          Key Findings
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {WP1_FINDINGS.map((f, i) => (
+            <div key={i} className="border border-theme rounded-lg p-4">
+              <span className="text-[12px] font-mono tracking-widest uppercase block mb-2 text-muted">
+                0{i + 1}
+              </span>
+              <h3 className="text-[14px] font-semibold mb-1">{f.title}</h3>
+              <p className="text-[13px] leading-relaxed text-muted">{f.detail}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -144,17 +165,31 @@ export default function WP1DetailPage() {
       </section>
 
       {/* Limitations */}
-      <section className="mb-10">
+      <section id="limitations" className="mb-10">
         <h2 className="text-[12px] font-mono tracking-widest uppercase mb-4 text-muted">
           Limitations
         </h2>
-        <ol className="space-y-2">
+        <ol className="space-y-3">
           {WP1_DETAIL.limitations.map((lim, i) => (
-            <li key={i} className="flex items-start gap-3 text-[14px] leading-relaxed">
-              <span className="text-[11px] font-mono mt-1 shrink-0 text-muted">
-                {String(i + 1).padStart(2, "0")}
+            <li key={i} className="flex flex-col gap-1 border border-theme rounded-lg p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-mono mt-0.5 shrink-0 text-muted">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span
+                  className={`text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded ${
+                    lim.severity === "High"
+                      ? "text-red-600 dark:text-red-400 bg-red-600/10"
+                      : "text-amber-600 dark:text-amber-400 bg-amber-600/10"
+                  }`}
+                >
+                  {lim.severity}
+                </span>
+                <span className="text-[14px] font-semibold">{lim.title}</span>
+              </div>
+              <span className="text-[13px] leading-relaxed text-muted ml-6">
+                {lim.detail}
               </span>
-              <span className="text-muted">{lim}</span>
             </li>
           ))}
         </ol>
@@ -192,9 +227,23 @@ export default function WP1DetailPage() {
         <h2 className="text-[12px] font-mono tracking-widest uppercase mb-3 text-muted">
           Downloads
         </h2>
-        <div className="space-y-2 text-[14px]">
-          <a href={SITE.zenodoUrl} target="_blank" rel="noopener noreferrer" className="link-accent inline-flex items-center gap-1 hover:underline">
-            Paper PDF (Zenodo) <ArrowUpRight size={13} />
+        <div className="space-y-3 text-[14px]">
+          <a
+            href={SITE.doiUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-theme font-medium link-accent hover:underline"
+          >
+            Download Paper Rev 2 - Zenodo Concept DOI {SITE.doi} <ArrowUpRight size={13} />
+          </a>
+          <br />
+          <a
+            href="https://raw.githubusercontent.com/FairMedAI/fairderm-audit/main/FAIRDERM_fixed.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-accent inline-flex items-center gap-1 hover:underline"
+          >
+            GitHub PDF - 22 pp <ArrowUpRight size={13} />
           </a>
           <br />
           <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" className="link-accent inline-flex items-center gap-1 hover:underline">

@@ -18,7 +18,15 @@ export function Footer() {
           </div>
         </div>
         <p className="text-[11px] font-mono text-muted text-center mt-4 opacity-60">
-          Not a medical device. For research audit only. Last audited July 2026 | Scanner v1 | 656 images
+          Last updated Oct 12 2026 - Rev 2 - DOI {SITE.doi} - Apache-2.0 -{" "}
+          <a
+            href="https://github.com/FairMedAI/fairderm-audit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-70 transition-opacity"
+          >
+            GitHub FairMedAI/fairderm-audit
+          </a>
         </p>
       </div>
     </footer>

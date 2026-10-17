@@ -1,3 +1,20 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21543769.svg)](https://doi.org/10.5281/zenodo.21543769)
+
+## Data & Code Availability
+
+Archived via Zenodo Concept DOI (all versions): https://doi.org/10.5281/zenodo.21543769
+Latest version PDF: [FairDerm.pdf](./FairDerm.pdf) (this site)
+
+## Citation
+
+```bibtex
+@misc{fairderm-audit2026,
+  title={FairDerm-Audit: Leakage-Aware Evaluation},
+  doi={10.5281/zenodo.21543769},
+  url={https://doi.org/10.5281/zenodo.21543769}
+}
+```
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

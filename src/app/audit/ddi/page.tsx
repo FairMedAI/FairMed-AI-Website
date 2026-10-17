@@ -49,7 +49,7 @@ export default function DDIAuditPage() {
           0 leakage
         </span>
         <span className="text-[11px] font-mono tracking-wider uppercase px-2 py-0.5 rounded text-green-600 dark:text-green-400 bg-green-600/10">
-          Last: July 2026
+          Last: Oct 12 2026 · Rev 2
         </span>
       </div>
 
@@ -384,7 +384,7 @@ export default function DDIAuditPage() {
 
       {/* ── 10. Footer ───────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-[12px] font-mono text-muted">
-        <span>Audited with FairMed Scanner v1 · 656 images · July 2026 · DOI: Zenodo pending</span>
+        <span>Audited with FairMed Scanner v1 · 656 images · Oct 12 2026 · Rev 2 · DOI {SITE.doi}</span>
       </div>
 
       <div className="mt-6">
